@@ -1,0 +1,16 @@
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
+WORKDIR /app
+RUN dotnet tool install -g dotnet-ef --version 3.1.0
+ENV PATH "$PATH:/root/.dotnet/tools"
+
+RUN curl -sL https://deb.nodesource.com/setup_14.x |  bash -
+RUN apt-get install -y nodejs unzip
+RUN curl -sSL https://aka.ms/getvsdbgsh | /bin/sh /dev/stdin -v latest -l /vsdbg
+
+RUN mkdir -p /todd-data
+
+# Copy csproj and restore as distinct layers
+COPY *.csproj ./
+RUN dotnet restore
+
+ENTRYPOINT dotnet watch run --urls "https://0.0.0.0:5000"

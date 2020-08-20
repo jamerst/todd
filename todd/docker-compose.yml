@@ -1,0 +1,28 @@
+version: "3.3"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    volumes:
+      - ./:/app:z
+      - todd-data:/todd-data
+  db:
+    image: "postgres:12.1"
+    environment:
+        POSTGRES_DB: todd_db
+        POSTGRES_USER: todd
+        POSTGRES_PASSWORD: todd
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-data/initdb.d:/docker-entrypoint-initdb.d/
+volumes:
+  postgres-data:
+  todd-data:
