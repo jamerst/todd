@@ -8,16 +8,16 @@
             "name": ".NET Core Attach Docker",
             "type": "coreclr",
             "request": "attach",
-            "processName": "openld",
+            "processName": "todd",
             "pipeTransport": {
-                "pipeCwd": "${workspaceFolder}/openld",
+                "pipeCwd": "${workspaceFolder}/todd",
                 "pipeProgram": "/usr/bin/docker",
-                "pipeArgs": ["exec", "-i", "openld_web_1"],
+                "pipeArgs": ["exec", "-i", "todd_web_1"],
                 "debuggerPath": "/vsdbg/vsdbg",
                 "quoteArgs": false
             },
             "sourceFileMap": {
-                "/app": "${workspaceFolder}/openld"
+                "/app": "${workspaceFolder}/todd"
             }
         },
         {

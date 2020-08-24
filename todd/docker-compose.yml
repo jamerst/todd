@@ -12,6 +12,8 @@ services:
     volumes:
       - ./:/app:z
       - todd-data:/todd-data
+    environment:
+      TODD_JWT_KEY: OxBCcXjmBdXm37e9E3iIABuTdv1W9rUBID96ZZ3A0H3C6Iplf5
   db:
     image: "postgres:12.1"
     environment:
