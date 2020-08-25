@@ -13,7 +13,7 @@ using todd.Utils;
 
 namespace todd.Controllers {
     [ApiController]
-    [Route("api/authenticate/[action]")]
+    [Route("api/auth/[action]")]
     public class AuthController : ControllerBase {
         private readonly ToddContext _context;
         private readonly IAuthUtils _authUtils;
@@ -26,15 +26,15 @@ namespace todd.Controllers {
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(string username, string password) {
+        public async Task<IActionResult> Login(LoginDetails login) {
             User user;
             try {
-                user = await _context.Users.FirstAsync(u => u.Username == username);
+                user = await _context.Users.FirstAsync(u => u.Username == login.username);
             } catch (InvalidOperationException) {
                 return Unauthorized();
             }
 
-            string hashed = _authUtils.Hash(password, Convert.FromBase64String(user.Salt), user.HashIterations, user.HashSize);
+            string hashed = _authUtils.Hash(login.password, Convert.FromBase64String(user.Salt), user.HashIterations, user.HashSize);
 
             if (user.Password != hashed) return Unauthorized();
 
@@ -43,7 +43,7 @@ namespace todd.Controllers {
             || user.HashSize != Int32.Parse(_config["Security:HashSize"])
             || user.SaltSize != Int32.Parse(_config["Security:SaltSize"])) {
                 byte[] salt = _authUtils.GenerateSalt();
-                string hash = _authUtils.Hash(password, salt, user.HashIterations, user.HashSize);
+                string hash = _authUtils.Hash(login.password, salt, user.HashIterations, user.HashSize);
 
                 user.Salt = Convert.ToBase64String(salt);
                 user.Password = hash;
@@ -54,7 +54,7 @@ namespace todd.Controllers {
                 await _context.SaveChangesAsync();
             }
 
-            RefreshToken token = new RefreshToken{ Token = _authUtils.GenerateRefresh(), User = user };
+            RefreshToken token = new RefreshToken { Token = _authUtils.GenerateRefresh(), User = user };
 
             _context.RefreshTokens.Add(token);
             await _context.SaveChangesAsync();
@@ -63,9 +63,9 @@ namespace todd.Controllers {
         }
 
         [HttpPost]
-        public async Task<IActionResult> LoginReadonly(string password) {
-            if (password == (await _context.Settings.FirstOrDefaultAsync(s => s.Key == "SitePassword")).Value) {
-                return new JsonResult(_authUtils.GenerateJWT());
+        public async Task<IActionResult> LoginReadonly(LoginDetails login) {
+            if (login.password == (await _context.Settings.FirstOrDefaultAsync(s => s.Key == "SitePassword")).Value) {
+                return new JsonResult(new TokenPair { access = _authUtils.GenerateJWT() });
             } else {
                 return Unauthorized();
             }
@@ -91,7 +91,7 @@ namespace todd.Controllers {
             if (rToken.Generated.AddSeconds(Int32.Parse(_config["Security:RefreshTokExpiry"])) <= DateTime.Now) {
                 newTokens.refresh = _authUtils.GenerateRefresh();
 
-                _context.RefreshTokens.Add(new RefreshToken{ Token = newTokens.refresh, User = rToken.User });
+                _context.RefreshTokens.Add(new RefreshToken { Token = newTokens.refresh, User = rToken.User });
                 _context.RefreshTokens.Remove(rToken);
                 await _context.SaveChangesAsync();
             }
@@ -137,6 +137,11 @@ namespace todd.Controllers {
         public class TokenPair {
             public string access { get; set; }
             public string refresh { get; set; }
+        }
+
+        public class LoginDetails {
+            public string username { get; set; }
+            public string password { get; set; }
         }
     }
 }
