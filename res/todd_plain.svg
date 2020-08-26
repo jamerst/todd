@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   width="400mm"
+   height="400mm"
+   viewBox="0 0 400 400"
+   version="1.1"
+   id="svg8">
+  <defs
+     id="defs2">
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       id="filter1634">
+      <feFlood
+         flood-opacity="0.639216"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood1624" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite1626" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="4.3"
+         result="blur"
+         id="feGaussianBlur1628" />
+      <feOffset
+         dx="0"
+         dy="6.2"
+         result="offset"
+         id="feOffset1630" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite1632" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       id="filter964">
+      <feFlood
+         flood-opacity="0.623529"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood954" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite956" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="4.3"
+         result="blur"
+         id="feGaussianBlur958" />
+      <feOffset
+         dx="0"
+         dy="6.2"
+         result="offset"
+         id="feOffset960" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite962" />
+    </filter>
+  </defs>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     transform="translate(239.02551,28.308746)">
+    <circle
+       style="color:#000000;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#009688;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2.0857625;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
+       id="path830"
+       cx="-39.025513"
+       cy="171.69125"
+       r="200" />
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.797453;filter:url(#filter964)"
+       d="m -111.47138,291.28777 c -2.85089,-0.81064 -6.08057,-1.64245 -7.17707,-1.84843 -6.36298,-1.19537 -9.13394,-2.15118 -12.36052,-4.26361 -2.99321,-1.95964 -4.22613,-3.16544 -8.27682,-8.09481 -1.39147,-1.69331 -1.64225,-1.77534 -1.66479,-0.54453 -0.0158,0.79701 1.26169,2.66404 2.83617,4.14896 2.51315,2.37022 2.79429,3.01147 2.30232,5.25144 -0.30824,1.40334 -1.43641,3.36337 -2.50705,4.35562 -4.40046,3.8016 -14.39279,-2.48526 -16.15146,-6.3085 -0.48153,-1.28148 -0.79732,-1.11311 -2.45797,1.31045 -2.17209,3.16994 -3.23104,3.0773 -6.5664,-0.57444 -2.70974,-2.9668 -2.73015,-3.7611 -0.19236,-7.48183 2.01091,-2.94813 2.01091,-2.94813 -0.39873,-3.19803 -4.84831,-1.58011 -11.10267,-4.02235 -11.18163,-8.74025 0,-3.44413 1.45409,-5.23135 4.92641,-6.05507 1.45252,-0.34457 2.5535,-0.0884 3.44309,0.80123 2.55906,2.09733 7.73915,1.19002 9.17447,-0.41021 0,-0.43609 -1.2399,-1.24124 -2.75534,-1.78923 -1.75891,-0.63603 -3.09634,-1.81954 -3.69821,-3.27265 -0.82805,-1.99905 -0.72445,-2.50881 0.85046,-4.18524 1.51555,-1.61322 2.11928,-1.785 3.89757,-1.10888 1.15733,0.44 2.18766,0.78839 2.28961,0.77417 0.10195,-0.0136 2.07565,0.85417 4.38599,1.92978 4.98939,2.49335 4.78678,1.47457 6.87468,-0.42115 0.61472,-0.24162 7.91953,-10.23452 8.78682,-12.25337 0.1632,-0.37967 -0.0246,-0.91794 -0.41716,-1.19619 -3.54671,-2.51385 -4.5071,-9.80051 -1.8569,-14.08864 1.83575,-2.97029 2.96588,-4.17556 8.19257,-4.73861 2.37929,-0.25632 7.5119,3.17263 9.33526,3.42257 10.31086,2.21734 12.65429,-6.76903 18.16221,-1.67304 1.78964,1.65835 3.826207,3.48551 4.525697,4.06033 1.11144,0.91337 12.354678,-10.07934 89.1728384,-87.18576 C 77.923405,49.678919 77.923405,49.678919 81.796645,51.413013 c 5.7382,2.919632 16.14253,14.202415 15.38034,19.32117 -0.25298,0.990187 -39.79804,40.888467 -87.8778999,88.662797 -87.4179601,86.86244 -87.4179601,86.86244 -83.3605101,90.65202 2.23159,2.08427 4.05743,4.46631 4.05743,5.29345 0,0.82714 -1.10262,2.55788 -2.45028,3.84607 -2.2496,2.15036 -2.40648,2.6361 -1.91546,5.93072 0.29418,1.97371 0.78962,3.76798 1.10098,3.98727 4.33981,3.05655 4.09771,12.27955 -0.42077,16.02955 -2.32691,1.93116 -6.90088,2.31142 -10.55459,0.87746 -5.86743,-1.13543 -12.672168,4.49049 -19.196995,5.90287 -2.87429,1.05402 -5.70854,0.0269 -8.03039,-0.62851 z m 0.87707,-11.18674 c 10.631237,-4.30061 15.548407,-11.62956 15.869417,-22.41601 0,-4.72425 -2.05621,-10.55465 -4.73721,-13.43235 -1.264247,-1.35705 -2.481267,-1.7051 -5.807547,-1.66099 -5.09386,0.0676 -9.09028,0.80478 -11.77469,2.17215 -1.10156,0.5611 -2.89996,0.88973 -3.99646,0.73025 -1.0965,-0.15936 -2.71135,-0.38444 -3.58854,-0.49995 -0.8772,-0.11551 -1.8064,-0.49677 -2.06487,-0.84723 -4.41208,2.69134 -6.39408,7.88309 -9.09469,11.29985 -1.52396,1.91708 -2.55072,3.84173 -2.2817,4.27699 0.269,0.43528 2.12053,1.51306 4.11449,2.39508 4.70332,2.08052 6.11016,3.4978 7.33177,7.3863 1.85298,5.89806 4.58944,10.07363 7.17843,10.9535 1.18798,0.40375 6.40798,0.19282 8.8516,-0.35759 z"
+       id="path897" />
+  </g>
+</svg>

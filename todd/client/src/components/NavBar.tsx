@@ -1,18 +1,19 @@
-import React from 'react';
+import React, { useState, Fragment } from 'react';
 import { fade, makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import {
   AppBar,
   IconButton,
   InputBase,
+  Menu, MenuItem,
   Toolbar,
   Typography
 } from '@material-ui/core';
 import {
   AccountCircle,
-  Search,
-  CallMissedSharp
+  Search
 } from '@material-ui/icons';
-import { relative } from 'path';
+import { useHistory, useLocation } from "react-router";
+import AuthUtils from '../utils/Auth';
 
 const styles = makeStyles((theme: Theme) => createStyles({
   bar: {
@@ -70,7 +71,45 @@ const styles = makeStyles((theme: Theme) => createStyles({
   },
 }))
 
-export const NavBar = () => {
+type NavBarProps = {
+  loggedIn: boolean,
+  canWrite: boolean,
+  admin: boolean
+}
+
+const UserMenu = ({ loggedIn, canWrite, admin }: NavBarProps) => {
+  const classes = styles();
+  const history = useHistory();
+  const location = useLocation();
+
+  const [userMenu, setUserMenu] = useState<null | HTMLElement>(null);
+
+  const logout = () => {
+    setUserMenu(null);
+    AuthUtils.logout();
+    history.push(`login?returnUrl=${location.pathname}`);
+  }
+
+  return (
+    <Fragment>
+      <IconButton
+        aria-label="User options"
+        className={classes.account}
+        disabled={!loggedIn}
+        onClick={(e) => setUserMenu(e.currentTarget)}
+      >
+        <AccountCircle/>
+      </IconButton>
+      <Menu open={Boolean(userMenu)} anchorEl={userMenu} onClose={() => setUserMenu(null)}>
+        { canWrite ? (<MenuItem>My Account</MenuItem>) : null }
+        { admin ? (<MenuItem>Admin Settings</MenuItem>) : null }
+        <MenuItem onClick={() => logout()}>Logout</MenuItem>
+      </Menu>
+    </Fragment>
+  );
+}
+
+export const NavBar = ({ loggedIn, canWrite, admin }: NavBarProps) => {
   const classes = styles();
 
   return (
@@ -90,9 +129,7 @@ export const NavBar = () => {
               }}
             />
           </div>
-          <IconButton aria-label="My account" className={classes.account}>
-            <AccountCircle/>
-          </IconButton>
+          <UserMenu loggedIn={loggedIn} canWrite={canWrite} admin={admin}/>
         </div>
       </Toolbar>
     </AppBar>
