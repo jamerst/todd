@@ -1,14 +1,16 @@
 import React from 'react';
-import { Route, Switch, BrowserRouter } from "react-router-dom";
+import { Switch, BrowserRouter } from "react-router-dom";
 import Home from './components/Home';
 import Login from './components/Login';
+import AuthRoute from "./routes/AuthRoute";
+import UnauthRoute from "./routes/UnauthRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Switch>
-        <Route exact path="/" component={Home}/>
-        <Route exact path="/login" component={Login}/>
+        <AuthRoute exact path="/" component={Home} />
+        <UnauthRoute exact path="/login" component={Login} />
       </Switch>
     </BrowserRouter>
   );

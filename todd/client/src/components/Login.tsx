@@ -4,17 +4,19 @@ import { Box, Button, Container, Collapse, Grid, Card, CardContent, TextField, T
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
 import { Alert } from "@material-ui/lab"
 import AuthUtils from "../utils/Auth";
+import logo from "../logo.svg";
 
 const styles = makeStyles((theme: Theme) => createStyles({
   grid: {
-    height: "100vh"
+    minHeight: "100vh"
   },
   form: {
     display: "flex",
     flexDirection: "column"
   },
-  card: {
-
+  logo: {
+    objectFit: "contain",
+    width: "100%"
   }
 }))
 
@@ -72,13 +74,16 @@ function Login() {
   return (
     <Container>
       <Grid container justify="center" alignContent="center" spacing={5} className={classes.grid}>
+        <Grid container item xs={6} md={3} direction="column" alignItems="center">
+          <img src={logo} alt="Logo" className={classes.logo}/>
+        </Grid>
         <Grid container item xs={12} direction="column" alignItems="center">
-          <Typography variant="h3">Please login to continue</Typography>
-          <Typography variant="h5">Contact Tech Crew Exec or DC Cupboard Manager to obtain a login</Typography>
+          <Typography variant="h1" align="center">TODD</Typography>
+          <Typography variant="h6" align="center">Tech Organiser and Drama Database</Typography>
         </Grid>
         <Grid container item direction="row" justify="center" spacing={3}>
           <Grid item xs={12} md={6}>
-            <Card className={classes.card}>
+            <Card>
               <CardContent>
                 <Box textAlign="center">
                   <Typography variant="h4">Read-Only Access</Typography>
@@ -105,7 +110,7 @@ function Login() {
           </Grid>
 
           <Grid item xs={12} md={6}>
-            <Card className={classes.card}>
+            <Card>
               <CardContent>
                 <Box textAlign="center">
                   <Typography variant="h4">Account Login</Typography>
@@ -135,6 +140,9 @@ function Login() {
               </CardContent>
             </Card>
           </Grid>
+        </Grid>
+        <Grid container item xs={12} direction="column" alignItems="center">
+          <Typography variant="h5" align="center">Contact DC Cupboard Manager to obtain a login</Typography>
         </Grid>
       </Grid>
     </Container>

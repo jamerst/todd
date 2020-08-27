@@ -12,7 +12,6 @@ import {
   AccountCircle,
   Search
 } from '@material-ui/icons';
-import { useHistory, useLocation } from "react-router";
 import AuthUtils from '../utils/Auth';
 
 const styles = makeStyles((theme: Theme) => createStyles({
@@ -72,22 +71,18 @@ const styles = makeStyles((theme: Theme) => createStyles({
 }))
 
 type NavBarProps = {
-  loggedIn: boolean,
   canWrite: boolean,
   admin: boolean
 }
 
-const UserMenu = ({ loggedIn, canWrite, admin }: NavBarProps) => {
+const UserMenu = ({ canWrite, admin }: NavBarProps) => {
   const classes = styles();
-  const history = useHistory();
-  const location = useLocation();
 
   const [userMenu, setUserMenu] = useState<null | HTMLElement>(null);
 
   const logout = () => {
     setUserMenu(null);
     AuthUtils.logout();
-    history.push(`login?returnUrl=${location.pathname}`);
   }
 
   return (
@@ -95,21 +90,20 @@ const UserMenu = ({ loggedIn, canWrite, admin }: NavBarProps) => {
       <IconButton
         aria-label="User options"
         className={classes.account}
-        disabled={!loggedIn}
         onClick={(e) => setUserMenu(e.currentTarget)}
       >
-        <AccountCircle/>
+        <AccountCircle />
       </IconButton>
       <Menu open={Boolean(userMenu)} anchorEl={userMenu} onClose={() => setUserMenu(null)}>
-        { canWrite ? (<MenuItem>My Account</MenuItem>) : null }
-        { admin ? (<MenuItem>Admin Settings</MenuItem>) : null }
+        {canWrite ? (<MenuItem>My Account</MenuItem>) : null}
+        {admin ? (<MenuItem>Admin Settings</MenuItem>) : null}
         <MenuItem onClick={() => logout()}>Logout</MenuItem>
       </Menu>
     </Fragment>
   );
 }
 
-export const NavBar = ({ loggedIn, canWrite, admin }: NavBarProps) => {
+export const NavBar = ({ canWrite, admin }: NavBarProps) => {
   const classes = styles();
 
   return (
@@ -119,7 +113,7 @@ export const NavBar = ({ loggedIn, canWrite, admin }: NavBarProps) => {
         <div className={classes.right}>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
-              <Search/>
+              <Search />
             </div>
             <InputBase
               placeholder="Search..."
@@ -129,7 +123,7 @@ export const NavBar = ({ loggedIn, canWrite, admin }: NavBarProps) => {
               }}
             />
           </div>
-          <UserMenu loggedIn={loggedIn} canWrite={canWrite} admin={admin}/>
+          <UserMenu canWrite={canWrite} admin={admin} />
         </div>
       </Toolbar>
     </AppBar>

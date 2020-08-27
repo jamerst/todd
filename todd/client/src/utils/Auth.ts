@@ -62,7 +62,7 @@ export default class AuthUtils {
   }
 
   static async logout() {
-    const response = await this.authFetch("api/auth/Logout", {
+    await this.authFetch("api/auth/Logout", {
       method: "POST",
       body: JSON.stringify({
         Token: localStorage.getItem("todd-refresh")
@@ -77,7 +77,7 @@ export default class AuthUtils {
     localStorage.removeItem("todd-access-expiry");
     localStorage.removeItem("todd-role");
 
-    return response.ok;
+    window.location.pathname = "/login";
   }
 
   static async authFetch(url: string, options?: RequestInit): Promise<Response> {
@@ -114,9 +114,9 @@ export default class AuthUtils {
 
   static isLoggedIn() {
     return localStorage.getItem("todd-access") !== null || (
-        parseInt(localStorage.getItem("todd-access-expiry") ?? "0") < Math.round(Date.now() / 1000)
-        && localStorage.getItem("todd-refresh") !== null
-      );
+      parseInt(localStorage.getItem("todd-access-expiry") ?? "0") < Math.round(Date.now() / 1000)
+      && localStorage.getItem("todd-refresh") !== null
+    );
   }
 
   static canWrite() {
