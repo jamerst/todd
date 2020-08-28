@@ -6,15 +6,16 @@ using System.Text;
 
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
+using todd.Configuration;
 using todd.Models;
 
 namespace todd.Utils {
     public class AuthUtils : IAuthUtils {
-        private readonly IConfiguration _config;
-        public AuthUtils(IConfiguration config) {
-            _config = config;
+        private readonly SecurityOptions _options;
+        public AuthUtils(IOptions<SecurityOptions> options) {
+            _options = options.Value;
         }
 
         public string Hash(string password, byte[] salt, int iterations, int size) {
@@ -28,7 +29,7 @@ namespace todd.Utils {
         }
 
         public byte[] GenerateSalt() {
-            byte[] salt = new byte[Int32.Parse(_config["Security:SaltSize"]) / 8];
+            byte[] salt = new byte[_options.SaltSize / 8];
 
             using (var RNG = RandomNumberGenerator.Create()) {
                 RNG.GetBytes(salt);
@@ -40,7 +41,7 @@ namespace todd.Utils {
         public string GenerateJWT() {
             var handler = new JwtSecurityTokenHandler();
             var descriptor = new SecurityTokenDescriptor {
-                Expires = DateTime.UtcNow.AddSeconds(Int32.Parse(_config["Security:AccessTokExpiry"])),
+                Expires = DateTime.UtcNow.AddSeconds(_options.AccessTokExpiry),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("TODD_JWT_KEY"))), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -55,7 +56,7 @@ namespace todd.Utils {
                     new Claim(ClaimTypes.Name, user.Id),
                     new Claim(ClaimTypes.Role, user.Admin ? "admin" : "write")
                 }),
-                Expires = DateTime.UtcNow.AddSeconds(Int32.Parse(_config["Security:AccessTokExpiry"])),
+                Expires = DateTime.UtcNow.AddSeconds(_options.AccessTokExpiry),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("TODD_JWT_KEY"))), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -64,7 +65,7 @@ namespace todd.Utils {
         }
 
         public string GenerateRefresh() {
-            byte[] token = new byte[Int32.Parse(_config["Security:RefreshTokSize"]) / 8];
+            byte[] token = new byte[_options.RefreshTokSize / 8];
 
             using (var RNG = RandomNumberGenerator.Create()) {
                 RNG.GetBytes(token);

@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build-env
 WORKDIR /app
 
-RUN curl -sL https://deb.nodesource.com/setup_13.x |  bash -
+RUN curl -sL https://deb.nodesource.com/setup_14.x |  bash -
 RUN apt-get install -y nodejs unzip
 
 # Copy csproj and restore as distinct layers
@@ -16,9 +16,9 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app
 RUN apt-get update
-RUN curl -sL https://deb.nodesource.com/setup_13.x |  bash -
-RUN apt-get install -y nodejs unzip libc6-dev libgdiplus librsvg2-bin
+RUN curl -sL https://deb.nodesource.com/setup_14.x |  bash -
+RUN apt-get install -y nodejs unzip libfreetype6 libfontconfig1
 RUN npm i -g svgo --unsafe-perm=true --allow-root
-COPY init-data/openld-data /openld-data
+COPY init-data/todd-data /todd-data
 COPY --from=build-env /app/out .
-ENTRYPOINT ["dotnet", "openld.dll"]
+ENTRYPOINT ["dotnet", "todd.dll"]

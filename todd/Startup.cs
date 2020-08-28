@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+using todd.Configuration;
 using todd.Data;
 using todd.Utils;
 namespace todd
@@ -52,8 +53,11 @@ namespace todd
                 configuration.RootPath = "client/build";
             });
 
-            services.AddSingleton<IConfiguration>(Configuration);
+            services.Configure<ImageOptions>(Configuration.GetSection(ImageOptions.Section));
+            services.Configure<SecurityOptions>(Configuration.GetSection(SecurityOptions.Section));
+
             services.AddTransient<IAuthUtils, AuthUtils>();
+            services.AddTransient<IImageUtils, ImageUtils>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

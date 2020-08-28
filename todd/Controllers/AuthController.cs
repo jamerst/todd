@@ -5,8 +5,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
+using todd.Configuration;
 using todd.Data;
 using todd.Models;
 using todd.Utils;
@@ -17,12 +18,12 @@ namespace todd.Controllers {
     public class AuthController : ControllerBase {
         private readonly ToddContext _context;
         private readonly IAuthUtils _authUtils;
-        private readonly IConfiguration _config;
+        private readonly SecurityOptions _options;
 
-        public AuthController(ToddContext context, IAuthUtils authUtils, IConfiguration config) {
+        public AuthController(ToddContext context, IAuthUtils authUtils, IOptions<SecurityOptions> options) {
             _context = context;
             _authUtils = authUtils;
-            _config = config;
+            _options = options.Value;
         }
 
         [HttpPost]
@@ -39,17 +40,17 @@ namespace todd.Controllers {
             if (user.Password != hashed) return Unauthorized();
 
             // if user security config is outdated, update it
-            if (user.HashIterations != Int32.Parse(_config["Security:HashIter"])
-            || user.HashSize != Int32.Parse(_config["Security:HashSize"])
-            || user.SaltSize != Int32.Parse(_config["Security:SaltSize"])) {
+            if (user.HashIterations != _options.HashIter
+            || user.HashSize != _options.HashSize
+            || user.SaltSize != _options.SaltSize) {
                 byte[] salt = _authUtils.GenerateSalt();
                 string hash = _authUtils.Hash(login.password, salt, user.HashIterations, user.HashSize);
 
                 user.Salt = Convert.ToBase64String(salt);
                 user.Password = hash;
-                user.HashIterations = Int32.Parse(_config["Security:HashIter"]);
-                user.HashSize = Int32.Parse(_config["Security:HashSize"]);
-                user.SaltSize = Int32.Parse(_config["Security:SaltSize"]);
+                user.HashIterations = _options.HashIter;
+                user.HashSize = _options.HashSize;
+                user.SaltSize = _options.SaltSize;
 
                 await _context.SaveChangesAsync();
             }
@@ -88,7 +89,7 @@ namespace todd.Controllers {
             TokenPair newTokens = new TokenPair();
             newTokens.access = _authUtils.GenerateJWT(rToken.User);
 
-            if (rToken.Generated.AddSeconds(Int32.Parse(_config["Security:RefreshTokExpiry"])) <= DateTime.Now) {
+            if (rToken.Generated.AddSeconds(_options.RefreshTokExpiry) <= DateTime.Now) {
                 newTokens.refresh = _authUtils.GenerateRefresh();
 
                 _context.RefreshTokens.Add(new RefreshToken { Token = newTokens.refresh, User = rToken.User });
@@ -116,16 +117,16 @@ namespace todd.Controllers {
         [Authorize(Roles = "admin")]
         public async Task Create(string username, string password, string email, bool admin) {
             byte[] salt = _authUtils.GenerateSalt();
-            string hash = _authUtils.Hash(password, salt, Int32.Parse(_config["Security:HashIter"]), Int32.Parse(_config["Security:HashSize"]));
+            string hash = _authUtils.Hash(password, salt, _options.HashIter, _options.HashSize);
 
             User user = new User {
                 Username = username,
                 Email = email,
                 Password = hash,
                 Salt = Convert.ToBase64String(salt),
-                HashIterations = Int32.Parse(_config["Security:HashIter"]),
-                HashSize = Int32.Parse(_config["Security:HashSize"]),
-                SaltSize = Int32.Parse(_config["Security:SaltSize"]),
+                HashIterations = _options.HashIter,
+                HashSize = _options.HashSize,
+                SaltSize = _options.SaltSize,
                 Admin = admin
             };
 
