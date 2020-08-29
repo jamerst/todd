@@ -5,5 +5,6 @@ namespace todd.Models {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
         public string Path { get; set; }
+        public string ItemId { get; set; }
     }
 }

@@ -52,5 +52,18 @@ namespace todd.Controllers {
             return new JsonResult(imageIds);
 
         }
+
+        [HttpGet("{id}.{ext?}")]
+        public async Task<IActionResult> GetImage(string id) {
+            Image image;
+            try {
+                image = await _context.Images.FirstAsync(i => i.Id == id);
+            } catch (InvalidOperationException) {
+                return NotFound();
+            }
+
+            var imageFile = System.IO.File.OpenRead(image.Path);
+            return File(imageFile, "image/jpeg");
+        }
     }
 }
