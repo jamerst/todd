@@ -48,7 +48,7 @@ namespace todd.Controllers {
             return Ok();
         }
 
-        [HttpGet]
+        [HttpPost]
         [Authorize]
         public async Task<IActionResult> SearchItems(SearchParams search) {
             search.pageSize = search.pageSize > 25 ? 25 : search.pageSize;
@@ -73,6 +73,7 @@ namespace todd.Controllers {
                 .Skip((search.pageNum - 1) * search.pageSize)
                 .Take(search.pageSize)
                 .Select(i => new ItemResult {
+                    Id = i.Id,
                     Name = i.Name,
                     Type = i.Type,
                     Description = i.Description,

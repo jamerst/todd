@@ -2,6 +2,7 @@ import React, { useState, Fragment } from 'react';
 import { fade, makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import {
   AppBar,
+  CssBaseline,
   IconButton,
   InputBase,
   Menu, MenuItem,
@@ -107,26 +108,30 @@ export const NavBar = ({ canWrite, admin }: NavBarProps) => {
   const classes = styles();
 
   return (
-    <AppBar>
-      <Toolbar className={classes.bar}>
-        <Typography variant="h5">Todd</Typography>
-        <div className={classes.right}>
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <Search />
+    <Fragment>
+      <CssBaseline/>
+      <AppBar>
+        <Toolbar className={classes.bar}>
+          <Typography variant="h5">Todd</Typography>
+          <div className={classes.right}>
+            <div className={classes.search}>
+              <div className={classes.searchIcon}>
+                <Search />
+              </div>
+              <InputBase
+                placeholder="Search..."
+                classes={{
+                  root: classes.inputRoot,
+                  input: classes.inputInput,
+                }}
+              />
             </div>
-            <InputBase
-              placeholder="Search..."
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-            />
+            <UserMenu canWrite={canWrite} admin={admin} />
           </div>
-          <UserMenu canWrite={canWrite} admin={admin} />
-        </div>
-      </Toolbar>
-    </AppBar>
+        </Toolbar>
+      </AppBar>
+      <Toolbar />
+    </Fragment>
   );
 }
 
