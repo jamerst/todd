@@ -7,10 +7,13 @@ import {
   InputBase,
   Menu, MenuItem,
   Toolbar,
-  Typography
+  Typography,
+  useMediaQuery
 } from '@material-ui/core';
 import {
   AccountCircle,
+  BrightnessHigh,
+  Brightness2,
   Search
 } from '@material-ui/icons';
 import AuthUtils from '../utils/Auth';
@@ -71,7 +74,12 @@ const styles = makeStyles((theme: Theme) => createStyles({
   },
 }))
 
-const UserMenu = () => {
+type NavBarProps = {
+  darkMode: boolean,
+  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const UserMenu = ({ darkMode, setDarkMode }: NavBarProps) => {
   const classes = styles();
 
   const [userMenu, setUserMenu] = useState<null | HTMLElement>(null);
@@ -83,6 +91,13 @@ const UserMenu = () => {
 
   return (
     <Fragment>
+      <IconButton
+        aria-label="Theme toggle"
+        className={classes.account}
+        onClick={() => { setDarkMode(!darkMode); localStorage.setItem("theme", darkMode ? "light" : "dark") }}
+      >
+        {darkMode ? <BrightnessHigh /> : <Brightness2 />}
+      </IconButton>
       <IconButton
         aria-label="User options"
         className={classes.account}
@@ -99,12 +114,12 @@ const UserMenu = () => {
   );
 }
 
-export const NavBar = () => {
+export const NavBar = ({ darkMode, setDarkMode }: NavBarProps) => {
   const classes = styles();
 
   return (
     <Fragment>
-      <CssBaseline/>
+      <CssBaseline />
       <AppBar>
         <Toolbar className={classes.bar}>
           <Typography variant="h5">Todd</Typography>
@@ -121,7 +136,7 @@ export const NavBar = () => {
                 }}
               />
             </div>
-            <UserMenu/>
+            <UserMenu darkMode={darkMode} setDarkMode={setDarkMode} />
           </div>
         </Toolbar>
       </AppBar>

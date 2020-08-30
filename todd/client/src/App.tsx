@@ -1,26 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Switch, BrowserRouter } from "react-router-dom";
-import { useMediaQuery, CssBaseline } from "@material-ui/core";
+import { CssBaseline } from "@material-ui/core";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import { teal } from "@material-ui/core/colors";
 import Home from './components/Home';
 import Login from './components/Login';
 import AuthRoute from "./routes/AuthRoute";
 import UnauthRoute from "./routes/UnauthRoute";
+import "./App.css";
 
 function App() {
-  const prefersDark = useMediaQuery("(prefers-color-scheme: dark)");
+  const [darkMode, setDarkMode] = useState<boolean>(
+    localStorage.getItem("theme") === "dark"
+    || (window.matchMedia("(prefers-color-scheme: dark)").matches && localStorage.getItem("theme") === null)
+  );
 
   const theme = React.useMemo(() =>
     createMuiTheme({
       palette: {
-        type: prefersDark ? 'dark' : 'light',
+        type: darkMode ? 'dark' : 'light',
         primary: {
-          main: teal[800]
+          main: darkMode ? teal[600] : teal[800]
         }
       },
     }),
-    [prefersDark],
+    [darkMode],
   );
 
   return (
@@ -28,7 +32,9 @@ function App() {
       <CssBaseline/>
       <BrowserRouter>
         <Switch>
-          <AuthRoute exact path="/" component={Home} />
+          <AuthRoute exact path="/">
+            <Home darkMode={darkMode} setDarkMode={setDarkMode}/>
+          </AuthRoute>
           <UnauthRoute exact path="/login" component={Login} />
         </Switch>
       </BrowserRouter>

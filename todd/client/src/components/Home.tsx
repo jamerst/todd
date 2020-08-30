@@ -4,7 +4,12 @@ import NavBar from './NavBar';
 import ItemResult, { ItemResultData } from "./ItemResult";
 import AuthUtils from '../utils/Auth';
 import { useLocation, useHistory } from 'react-router';
-import { FirstPage, LastPage } from '@material-ui/icons';
+import PageNav from "./PageNav";
+
+type HomeProps = {
+  darkMode: boolean,
+  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>
+}
 
 type SearchParams = {
   name: string,
@@ -47,7 +52,7 @@ const queryStringToParams = (s: string) => {
   }
 }
 
-export const Home = () => {
+export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
   const [params, setParams] = useState<SearchParams>({
     name: "",
     type: -1,
@@ -110,7 +115,7 @@ export const Home = () => {
 
   return (
     <Fragment>
-      <NavBar />
+      <NavBar darkMode={darkMode} setDarkMode={setDarkMode}/>
       <Box mt={2}>
         <Container>
           <Grid container direction="column" spacing={2}>
@@ -187,17 +192,12 @@ export const Home = () => {
                 : <Fragment>
                   {numResults > 0
                     ? <Fragment>
-                      <Grid container direction="row" justify="space-between" alignItems="center">
-                        <Typography variant="h4">Search Results</Typography>
-                        <ButtonGroup color="primary" size="small">
-                          <Button><FirstPage/></Button>
-                          <Button variant="contained">1</Button>
-                          <Button>2</Button>
-                          <Button>3</Button>
-                          <Button>4</Button>
-                          <Button><LastPage/></Button>
-                        </ButtonGroup>
-                      </Grid>
+                      <Box mb={1}>
+                        <Grid container direction="row" justify="space-between" alignItems="center">
+                          <Typography variant="h5">{numResults} Results</Typography>
+                          <PageNav currentPage={params.pageNum} pageCount={Math.ceil(numResults / 25)}/>
+                        </Grid>
+                      </Box>
                       <Grid container spacing={2}>
                         {results.map((i: ItemResultData) => (
                           <ItemResult item={i} key={`result-${i.id}`} />
@@ -219,11 +219,5 @@ export const Home = () => {
     </Fragment>
   );
 }
-
-{/* <Typography variant="body1">
-  {numResults} Results
-  |
-  Page {params.pageNum}/{Math.ceil(numResults / 25)}
-</Typography> */}
 
 export default Home;
