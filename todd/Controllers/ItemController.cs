@@ -51,7 +51,6 @@ namespace todd.Controllers {
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> SearchItems(SearchParams search) {
-            search.pageSize = search.pageSize > 25 ? 25 : search.pageSize;
             search.pageNum = search.pageNum < 1 ? 1 : search.pageNum;
 
             var query = _context.Items.AsNoTracking()
@@ -70,8 +69,8 @@ namespace todd.Controllers {
             }
 
             List<ItemResult> results = await query
-                .Skip((search.pageNum - 1) * search.pageSize)
-                .Take(search.pageSize)
+                .Skip((search.pageNum - 1) * 25)
+                .Take(25)
                 .Select(i => new ItemResult {
                     Id = i.Id,
                     Name = i.Name,
@@ -92,7 +91,6 @@ namespace todd.Controllers {
             public int Type { get; set; }
             public string LocationId { get; set; }
             public int pageNum { get; set; }
-            public int pageSize { get; set; }
         }
     }
 }

@@ -71,12 +71,7 @@ const styles = makeStyles((theme: Theme) => createStyles({
   },
 }))
 
-type NavBarProps = {
-  canWrite: boolean,
-  admin: boolean
-}
-
-const UserMenu = ({ canWrite, admin }: NavBarProps) => {
+const UserMenu = () => {
   const classes = styles();
 
   const [userMenu, setUserMenu] = useState<null | HTMLElement>(null);
@@ -96,15 +91,15 @@ const UserMenu = ({ canWrite, admin }: NavBarProps) => {
         <AccountCircle />
       </IconButton>
       <Menu open={Boolean(userMenu)} anchorEl={userMenu} onClose={() => setUserMenu(null)}>
-        {canWrite ? (<MenuItem>My Account</MenuItem>) : null}
-        {admin ? (<MenuItem>Admin Settings</MenuItem>) : null}
+        {AuthUtils.canWrite() ? (<MenuItem>My Account</MenuItem>) : null}
+        {AuthUtils.isAdmin() ? (<MenuItem>Admin Settings</MenuItem>) : null}
         <MenuItem onClick={() => logout()}>Logout</MenuItem>
       </Menu>
     </Fragment>
   );
 }
 
-export const NavBar = ({ canWrite, admin }: NavBarProps) => {
+export const NavBar = () => {
   const classes = styles();
 
   return (
@@ -126,7 +121,7 @@ export const NavBar = ({ canWrite, admin }: NavBarProps) => {
                 }}
               />
             </div>
-            <UserMenu canWrite={canWrite} admin={admin} />
+            <UserMenu/>
           </div>
         </Toolbar>
       </AppBar>

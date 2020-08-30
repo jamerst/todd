@@ -114,7 +114,7 @@ export default class AuthUtils {
 
   static isLoggedIn() {
     return localStorage.getItem("todd-access") !== null || (
-      parseInt(localStorage.getItem("todd-access-expiry") ?? "0") < Math.round(Date.now() / 1000)
+      parseInt(localStorage.getItem("todd-access-expiry") ?? "0", 10) < Math.round(Date.now() / 1000)
       && localStorage.getItem("todd-refresh") !== null
     );
   }
