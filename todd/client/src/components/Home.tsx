@@ -91,7 +91,7 @@ export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
 
   return (
     <Fragment>
-      <NavBar darkMode={darkMode} setDarkMode={setDarkMode}/>
+      <NavBar darkMode={darkMode} setDarkMode={setDarkMode} />
       <Box mt={2}>
         <Container>
           <Grid container direction="column" spacing={2}>
@@ -169,13 +169,13 @@ export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
                   {numResults > 0
                     ? <Fragment>
                       <Box mb={1}>
-                        <Grid container direction={r({xs: "column", md: "row"})} justify="space-between" alignItems="center">
+                        <Grid container direction={r({ xs: "column", md: "row" })} justify="space-between" alignItems="center">
                           <Typography variant="h5">{numResults} Results</Typography>
                           <Pagination
                             color="secondary"
                             count={Math.ceil(numResults / 25)}
                             page={params.pageNum}
-                            onChange={(_, value: number) => {setParams({...params, pageNum: value}); setReady(true);}}
+                            onChange={(_, value: number) => { setParams({ ...params, pageNum: value }); setReady(true); }}
                           />
                         </Grid>
                       </Box>
@@ -190,7 +190,7 @@ export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
                             color="secondary"
                             count={Math.ceil(numResults / 25)}
                             page={params.pageNum}
-                            onChange={(_, value: number) => {setParams({...params, pageNum: value}); setReady(true);}}
+                            onChange={(_, value: number) => { setParams({ ...params, pageNum: value }); setReady(true); }}
                           />
                         </Grid>
                       </Box>
@@ -209,10 +209,10 @@ export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
       </Box>
 
       <Fab color="secondary" aria-label="add" className={classes.fab} onClick={(_) => setAddItemOpen(true)}>
-        <Add/>
+        <Add />
       </Fab>
 
-      <AddItemDialog open={addItemOpen} onClose={() => setAddItemOpen(false)} locations={locations}/>
+      <AddItemDialog open={addItemOpen} onSuccess={() => { setAddItemOpen(false); setReady(true); }} onExit={() => setAddItemOpen(false)} locations={locations} />
     </Fragment>
   );
 }

@@ -18,7 +18,7 @@ namespace todd.Services {
             _imageUtils = imageUtils;
         }
 
-        public async Task<List<Image>> SaveImages(List<IFormFile> images) {
+        public async Task<List<Image>> SaveImages(IFormFileCollection images) {
             List<Image> newImages = new List<Image>();
             foreach (IFormFile image in images) {
                 bool isValid = false;
@@ -44,6 +44,6 @@ namespace todd.Services {
     }
 
     public interface IImageService {
-        Task<List<Image>> SaveImages(List<IFormFile> images);
+        Task<List<Image>> SaveImages(IFormFileCollection images);
     }
 }

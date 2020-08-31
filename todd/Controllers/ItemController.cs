@@ -28,8 +28,11 @@ namespace todd.Controllers {
 
         [HttpPost]
         [Authorize(Roles = "write,admin")]
-        public async Task<IActionResult> Create([FromForm]NewItem item) {
-            List<Image> savedImages = await _imageService.SaveImages(item.Images);
+        public async Task<IActionResult> Create([FromForm] NewItem item) {
+            List<Image> savedImages = new List<Image>();
+            if (item.Images != null) {
+                savedImages.AddRange(await _imageService.SaveImages(item.Images));
+            }
 
             Item newItem = new Item {
                 Name = item.Name,
@@ -75,6 +78,7 @@ namespace todd.Controllers {
             }
 
             List<ItemResult> results = await query
+                .OrderBy(i => i.Name)
                 .Skip((search.pageNum - 1) * 25)
                 .Take(25)
                 .Select(i => new ItemResult {

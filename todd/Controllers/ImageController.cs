@@ -16,38 +16,9 @@ namespace todd.Controllers {
     [Route("api/image/[action]")]
     public class ImageController : ControllerBase {
         private readonly ToddContext _context;
-        private readonly IImageUtils _imageUtils;
 
-        public ImageController(ToddContext context, IImageUtils imageUtils) {
+        public ImageController(ToddContext context) {
             _context = context;
-            _imageUtils = imageUtils;
-        }
-
-        [HttpPost]
-        [Authorize(Roles = "write,admin")]
-        public async Task<IActionResult> Upload([FromForm] List<IFormFile> images) {
-            List<string> imageIds = new List<string>();
-            foreach (IFormFile image in images) {
-                bool isValid = false;
-                try {
-                    isValid = _imageUtils.IsImage(image);
-                } catch (ArgumentException) {
-                    continue;
-                }
-
-                if (isValid) {
-                    string filePath = _imageUtils.SaveAsJpeg(image);
-
-                    Image newImage = new Image { Path = filePath };
-                    _context.Images.Add(newImage);
-                    await _context.SaveChangesAsync();
-
-                    imageIds.Add(newImage.Id);
-                }
-            }
-
-            return new JsonResult(imageIds);
-
         }
 
         [HttpGet("{id}.{ext?}")]

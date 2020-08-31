@@ -1,14 +1,16 @@
-import React, { useState, useMemo } from "react"
-import { Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, FormControl, Select, MenuItem, InputLabel, Grid, Typography } from "@material-ui/core"
+import React, { useState, useMemo, useCallback } from "react"
+import { Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, FormControl, Select, MenuItem, InputLabel, Grid, Typography, Box, Collapse } from "@material-ui/core"
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles"
 
 import { Location } from "../utils/SearchUtils";
-import { Autocomplete, createFilterOptions } from "@material-ui/lab";
+import { Alert, Autocomplete, createFilterOptions } from "@material-ui/lab";
 import useResponsive from "../hooks/useResponsive";
+import AuthUtils from "../utils/AuthUtils";
 
 type AddItemDialogProps = {
   open: boolean
-  onClose: Function,
+  onSuccess: Function,
+  onExit: Function
   locations: Location[]
 }
 
@@ -34,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export const AddItemDialog = ({ open, onClose, locations }: AddItemDialogProps) => {
+export const AddItemDialog = ({ open, onSuccess, onExit, locations }: AddItemDialogProps) => {
   const [data, setData] = useState<ItemData>({
     name: "",
     description: "",
@@ -45,6 +47,8 @@ export const AddItemDialog = ({ open, onClose, locations }: AddItemDialogProps) 
     images: null
   });
 
+  const [error, setError] = useState("");
+
   const locationOptions: LocationOptionType[] = useMemo(() => locations.map(l => {
     return {
       name: l.name,
@@ -53,21 +57,70 @@ export const AddItemDialog = ({ open, onClose, locations }: AddItemDialogProps) 
     }
   }), [locations]);
 
+  const createItem = useCallback(async () => {
+    let formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("type", data.type.toString());
+
+    if (data.locationId !== null) {
+      formData.append("locationId", data.locationId);
+    }
+
+    if (data.location !== null) {
+      formData.append("location[id]", "");
+      formData.append("location[name]", data.location.name);
+    }
+
+    formData.append("quantity", data.quantity.toString());
+
+    if (data.images !== null) {
+      for (let i = 0; i < data.images.length; i++) {
+        formData.append("images", data.images[i]);
+      }
+    }
+
+    const response = await AuthUtils.authFetch("/api/item/Create", {
+      method: "POST",
+      body: formData
+    });
+
+    if (response.ok) {
+      onSuccess();
+      setData({
+        name: "",
+        description: "",
+        type: 0,
+        locationId: "",
+        location: { id: "", name: "" },
+        quantity: 1,
+        images: null
+      });
+    } else {
+      setError("Unknown error creating item");
+    }
+  }, [data]);
+
   const classes = useStyles();
   const r = useResponsive();
 
   return (
-    <Dialog open={open} onClose={(e, r) => onClose()} aria-labelledby="dialog-title" maxWidth="sm" fullWidth fullScreen={r({ xs: true, md: false })}>
+    <Dialog open={open} aria-labelledby="dialog-title" maxWidth="sm" fullWidth fullScreen={r({ xs: true, md: false })}>
       <DialogTitle id="dialog-title">Add New Item</DialogTitle>
-      <form className={classes.form} onSubmit={(e) => {e.preventDefault(); console.log(data)}}>
+      <form className={classes.form} onSubmit={(e) => { e.preventDefault(); createItem(); }}>
         <DialogContent>
+          <Collapse in={error !== ""}>
+            <Box mb={2}>
+              <Alert severity="error" variant="filled">{error}</Alert>
+            </Box>
+          </Collapse>
           <TextField
             value={data.name}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData({ ...data, name: e.target.value })}
             autoFocus
             label="Item Name"
             fullWidth
-            variant="outlined"
+            variant="filled"
             required
           />
           <TextField
@@ -77,13 +130,13 @@ export const AddItemDialog = ({ open, onClose, locations }: AddItemDialogProps) 
             rows={5}
             label="Description"
             fullWidth
-            variant="outlined"
+            variant="filled"
             required
           />
 
           <Grid container spacing={1}>
             <Grid item xs={12} md={6}>
-              <FormControl fullWidth variant="outlined">
+              <FormControl fullWidth variant="filled">
                 <InputLabel id="select-type-label">Type</InputLabel>
                 <Select
                   labelId="select-type-label"
@@ -116,7 +169,7 @@ export const AddItemDialog = ({ open, onClose, locations }: AddItemDialogProps) 
                 }
                 label="Quantity"
                 fullWidth
-                variant="outlined"
+                variant="filled"
                 type="number"
                 inputProps={{ min: 1 }}
                 required
@@ -128,9 +181,9 @@ export const AddItemDialog = ({ open, onClose, locations }: AddItemDialogProps) 
             options={locationOptions}
             fullWidth
             freeSolo
-            getOptionLabel={l => l.name}
-            renderOption={l => l.displayName}
-            renderInput={(props) => <TextField {...props} label="Location" variant="outlined" required />}
+            getOptionLabel={l => l.name ?? "(Unknown)"}
+            renderOption={l => l.displayName ?? "(Unknown)"}
+            renderInput={(props) => <TextField {...props} label="Location" variant="filled" required />}
             onChange={(_, value) => {
               if (value === null) {
                 setData({ ...data, location: null, locationId: null });
@@ -156,19 +209,21 @@ export const AddItemDialog = ({ open, onClose, locations }: AddItemDialogProps) 
 
           <input id="item-images" type="file" accept="image/*" multiple hidden onChange={e => setData({ ...data, images: e.target.files })} />
           <label htmlFor="item-images">
-            <Button variant="contained" color="primary" component="span">Add Images</Button>
+            <Button variant="contained" color="secondary" component="span">Add Images</Button>
+          </label>
+          <Box mt={1}>
             {data.images !== null && data.images.length > 0 ?
               <Typography variant="body1">
                 {data.images.length} image{data.images.length > 1 ? "s" : ""} selected
               </Typography>
-            :
-            <Typography variant="body1">No images selected</Typography>
+              :
+              <Typography variant="body1">No images selected</Typography>
             }
-          </label>
+          </Box>
         </DialogContent>
         <DialogActions>
-          <Button color="primary" onClick={() => onClose()}>Close</Button>
-          <Button color="primary" type="submit">Add</Button>
+          <Button color="primary" onClick={() => onExit()}>Close</Button>
+          <Button color="primary" variant="contained" type="submit">Add Item</Button>
         </DialogActions>
       </form>
     </Dialog>

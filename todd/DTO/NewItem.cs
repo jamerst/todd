@@ -9,6 +9,6 @@ namespace todd.Models {
         public string LocationId { get; set; }
         public Location Location { get; set; }
         public int Quantity { get; set; }
-        public List<IFormFile> Images { get; set; }
+        public IFormFileCollection Images { get; set; }
     }
 }
