@@ -23,7 +23,7 @@ function App() {
           main: darkMode ? teal[600] : teal[800]
         },
         secondary: {
-          main: darkMode ? orange[600] : orange[800]
+          main: orange[800]
         }
       },
     }),

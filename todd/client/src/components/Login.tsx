@@ -3,7 +3,7 @@ import { useHistory, useLocation } from "react-router-dom";
 import { Box, Button, Container, Collapse, Grid, Card, CardContent, TextField, Typography } from "@material-ui/core";
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
 import { Alert } from "@material-ui/lab"
-import AuthUtils from "../utils/Auth";
+import AuthUtils from "../utils/AuthUtils";
 import logo from "../logo.svg";
 
 const styles = makeStyles((theme: Theme) => createStyles({

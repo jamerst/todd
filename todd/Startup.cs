@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 
 using todd.Configuration;
 using todd.Data;
+using todd.Services;
 using todd.Utils;
 namespace todd
 {
@@ -55,6 +56,8 @@ namespace todd
 
             services.Configure<ImageOptions>(Configuration.GetSection(ImageOptions.Section));
             services.Configure<SecurityOptions>(Configuration.GetSection(SecurityOptions.Section));
+
+            services.AddTransient<IImageService, ImageService>();
 
             services.AddTransient<IAuthUtils, AuthUtils>();
             services.AddTransient<IImageUtils, ImageUtils>();

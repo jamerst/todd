@@ -1,57 +1,29 @@
-import React, { Fragment, useState, useEffect, useCallback } from 'react';
-import { CircularProgress, Container, Box, Grid, Card, TextField, Typography, Select, MenuItem, FormControl, InputLabel, Button } from "@material-ui/core";
-import NavBar from './NavBar';
-import ItemResult, { ItemResultData } from "./ItemResult";
-import AuthUtils from '../utils/Auth';
-import { useLocation, useHistory } from 'react-router';
-import { Pagination } from '@material-ui/lab';
-import useResponsive from "../hooks/useResponsive";
+import React, { Fragment, useState, useEffect, useCallback } from "react"
+import { useLocation, useHistory } from "react-router"
+import { CircularProgress, Container, Box, Grid, Card, TextField, Typography, Select, MenuItem, FormControl, InputLabel, Button, Fab } from "@material-ui/core"
+import { Pagination } from "@material-ui/lab"
+import { Add } from "@material-ui/icons"
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
+
+import AddItemDialog from "./AddItemDialog"
+import ItemResult, { ItemResultData } from "./ItemResult"
+import NavBar from "./NavBar"
+import useResponsive from "../hooks/useResponsive"
+import AuthUtils from "../utils/AuthUtils"
+import SearchUtils, { Location, SearchParams } from "../utils/SearchUtils"
 
 type HomeProps = {
   darkMode: boolean,
   setDarkMode: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-type SearchParams = {
-  name: string,
-  type: number,
-  locationId: string,
-  pageNum: number
-}
-
-interface Location {
-  id: string,
-  name: string
-}
-
-const paramsToQueryString = (p: SearchParams) => {
-  let params = [];
-
-  if (p.name !== "") {
-    params.push(`name=${p.name}`);
+const useStyles = makeStyles((theme: Theme) => createStyles({
+  fab: {
+    position: "fixed",
+    bottom: theme.spacing(2),
+    right: theme.spacing(2)
   }
-  if (p.type !== -1) {
-    params.push(`type=${p.type}`);
-  }
-  if (p.locationId !== "") {
-    params.push(`locationId=${p.locationId}`);
-  }
-  if (p.pageNum !== 1) {
-    params.push(`pageNum=${p.pageNum}`);
-  }
-
-  return params.join("&");
-}
-
-const queryStringToParams = (s: string) => {
-  const p = new URLSearchParams(s);
-  return {
-    name: p.get("name") ?? "",
-    type: parseInt(p.get("type") ?? "-1", 10),
-    locationId: p.get("locationId") ?? "",
-    pageNum: parseInt(p.get("pageNum") ?? "1", 10)
-  }
-}
+}))
 
 export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
   const [params, setParams] = useState<SearchParams>({
@@ -66,10 +38,12 @@ export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
   const [results, setResults] = useState<ItemResultData[]>([]);
   const [numResults, setNumResults] = useState<number>(0);
   const [ready, setReady] = useState<boolean>(false);
+  const [addItemOpen, setAddItemOpen] = useState<boolean>(false);
 
   const location = useLocation();
   const history = useHistory();
   const r = useResponsive();
+  const classes = useStyles();
 
   const fetchSearchResults = useCallback(async () => {
     if (ready) {
@@ -86,7 +60,7 @@ export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
         setNumResults(data.count);
         setLoading(false);
         setReady(false);
-        history.push(`${location.pathname}?${paramsToQueryString(params)}`);
+        history.push(`${location.pathname}?${SearchUtils.paramsToQueryString(params)}`);
       }
     }
   }, [params, ready]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -106,7 +80,7 @@ export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
     fetchLocations();
 
     if (location.search !== "") {
-      setParams(queryStringToParams(location.search));
+      setParams(SearchUtils.queryStringToParams(location.search));
     }
     setReady(true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -233,6 +207,12 @@ export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
           </Grid>
         </Container>
       </Box>
+
+      <Fab color="secondary" aria-label="add" className={classes.fab} onClick={(_) => setAddItemOpen(true)}>
+        <Add/>
+      </Fab>
+
+      <AddItemDialog open={addItemOpen} onClose={() => setAddItemOpen(false)} locations={locations}/>
     </Fragment>
   );
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Redirect, Route, RouteProps } from 'react-router-dom';
 
-import AuthUtils from '../utils/Auth';
+import AuthUtils from '../utils/AuthUtils';
 
 const AuthRoute = (props: RouteProps) => {
   if (!AuthUtils.isLoggedIn()) {

@@ -12,29 +12,35 @@ using Microsoft.AspNetCore.Mvc;
 using todd.Data;
 using todd.DTO;
 using todd.Models;
+using todd.Services;
 
 namespace todd.Controllers {
     [ApiController]
     [Route("api/item/[action]")]
     public class ItemController : ControllerBase {
         private readonly ToddContext _context;
+        private readonly IImageService _imageService;
 
-        public ItemController(ToddContext context) {
+        public ItemController(ToddContext context, IImageService imageService) {
             _context = context;
+            _imageService = imageService;
         }
 
         [HttpPost]
         [Authorize(Roles = "write,admin")]
-        public async Task<IActionResult> Create(NewItem item) {
+        public async Task<IActionResult> Create([FromForm]NewItem item) {
+            List<Image> savedImages = await _imageService.SaveImages(item.Images);
+
             Item newItem = new Item {
                 Name = item.Name,
                 Type = item.Type,
                 Description = item.Description,
                 LocationId = item.LocationId,
+                Location = item.Location,
                 Quantity = item.Quantity,
                 CreatorId = User.FindFirstValue(ClaimTypes.Name),
                 Created = DateTime.Now,
-                Images = await _context.Images.Where(i => item.Images.Contains(i.Id) && i.ItemId == null).ToListAsync(),
+                Images = savedImages,
                 Records = new List<Record>()
             };
 

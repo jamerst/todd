@@ -3,18 +3,19 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 import {
   AppBar,
   CssBaseline,
+  Grid,
   IconButton,
   Menu, MenuItem,
   Toolbar,
+  Tooltip,
   Typography,
-  Grid
 } from '@material-ui/core';
 import {
   AccountCircle,
   BrightnessHigh,
   Brightness2
 } from '@material-ui/icons';
-import AuthUtils from '../utils/Auth';
+import AuthUtils from '../utils/AuthUtils';
 
 const styles = makeStyles(() => createStyles({
   icon: {
@@ -39,13 +40,15 @@ const UserMenu = () => {
 
   return (
     <Fragment>
-      <IconButton
-        aria-label="User options"
-        className={classes.icon}
-        onClick={(e) => setUserMenu(e.currentTarget)}
-      >
-        <AccountCircle />
-      </IconButton>
+      <Tooltip title="User options">
+        <IconButton
+          aria-label="User options"
+          className={classes.icon}
+          onClick={(e) => setUserMenu(e.currentTarget)}
+        >
+          <AccountCircle />
+        </IconButton>
+      </Tooltip>
 
       <Menu open={Boolean(userMenu)} anchorEl={userMenu} onClose={() => setUserMenu(null)}>
         {AuthUtils.canWrite() ? (<MenuItem>My Account</MenuItem>) : null}
@@ -67,13 +70,15 @@ export const NavBar = ({ darkMode, setDarkMode }: NavBarProps) => {
           <Grid container direction="row" justify="space-between" alignItems="center">
             <Typography variant="h5">Todd</Typography>
             <Grid item>
-              <IconButton
-                aria-label="Theme toggle"
-                className={classes.icon}
-                onClick={() => { setDarkMode(!darkMode); localStorage.setItem("theme", darkMode ? "light" : "dark") }}
-              >
-                {darkMode ? <BrightnessHigh /> : <Brightness2 />}
-              </IconButton>
+              <Tooltip title="Toggle theme">
+                <IconButton
+                  aria-label="Theme toggle"
+                  className={classes.icon}
+                  onClick={() => { setDarkMode(!darkMode); localStorage.setItem("theme", darkMode ? "light" : "dark") }}
+                >
+                  {darkMode ? <BrightnessHigh /> : <Brightness2 />}
+                </IconButton>
+              </Tooltip>
 
               <UserMenu />
             </Grid>
