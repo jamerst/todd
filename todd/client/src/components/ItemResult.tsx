@@ -1,7 +1,7 @@
 import React from "react";
-import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Typography } from "@material-ui/core";
+import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Typography, Chip } from "@material-ui/core";
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
-import { LocationOn, Category, BrokenImage } from '@material-ui/icons';
+import { LocationOn, BrokenImage } from '@material-ui/icons';
 
 export interface ItemResultData {
   id: string,
@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
   itemImage: {
     height: "30em"
   },
-  noItemImage : {
+  noItemImage: {
     height: "30em",
     backgroundColor: theme.palette.action.selected,
     color: theme.palette.text.secondary,
@@ -31,10 +31,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
   },
   noImageIcon: {
     fontSize: theme.typography.h3.fontSize
-  },
-  descriptionIcon: {
-    fontSize: theme.typography.body1.fontSize,
-    marginRight: theme.spacing(1)
   }
 }));
 
@@ -61,7 +57,7 @@ export const ItemResult = ({ item }: ItemResultProps) => {
     <Grid container item xs={12} sm={6} md={4}>
       <Card className={classes.card}>
         <CardActionArea>
-          { item.imageId ?
+          {item.imageId ?
             <CardMedia
               image={`/api/image/GetImage/${item.imageId}`}
               title="Item image"
@@ -69,7 +65,7 @@ export const ItemResult = ({ item }: ItemResultProps) => {
             />
             :
             <Grid container spacing={2} direction="column" justify="center" alignItems="center" className={classes.noItemImage}>
-              <BrokenImage className={classes.noImageIcon}/>
+              <BrokenImage className={classes.noImageIcon} />
               <Typography variant="h6">No Image Available</Typography>
             </Grid>
           }
@@ -77,16 +73,19 @@ export const ItemResult = ({ item }: ItemResultProps) => {
             <Typography variant="h5">{item.name}</Typography>
             <Typography variant="body1" color="textSecondary">{item.description}</Typography>
             <Box mt={1}>
-              <Typography variant="body2" color="textSecondary">
-                <Grid container direction="row" alignItems="center">
-                  <LocationOn className={classes.descriptionIcon}/>
-                  {item.locationName}
+              <Grid container spacing={1} justify="flex-start">
+                <Grid item>
+                  <Chip
+                    label={typeString(item.type)}
+                  />
                 </Grid>
-                <Grid container direction="row" alignItems="center">
-                  <Category className={classes.descriptionIcon}/>
-                  {typeString(item.type)}
+                <Grid item>
+                  <Chip
+                    label={item.locationName}
+                    icon={<LocationOn />}
+                  />
                 </Grid>
-              </Typography>
+              </Grid>
             </Box>
           </CardContent>
         </CardActionArea>

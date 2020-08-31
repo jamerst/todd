@@ -1,10 +1,11 @@
 import React, { Fragment, useState, useEffect, useCallback } from 'react';
-import { CircularProgress, Container, Box, Grid, Card, TextField, Typography, Select, MenuItem, FormControl, InputLabel, Button, ButtonGroup } from "@material-ui/core";
+import { CircularProgress, Container, Box, Grid, Card, TextField, Typography, Select, MenuItem, FormControl, InputLabel, Button } from "@material-ui/core";
 import NavBar from './NavBar';
 import ItemResult, { ItemResultData } from "./ItemResult";
 import AuthUtils from '../utils/Auth';
 import { useLocation, useHistory } from 'react-router';
-import PageNav from "./PageNav";
+import { Pagination } from '@material-ui/lab';
+import useResponsive from "../hooks/useResponsive";
 
 type HomeProps = {
   darkMode: boolean,
@@ -68,6 +69,7 @@ export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
 
   const location = useLocation();
   const history = useHistory();
+  const r = useResponsive();
 
   const fetchSearchResults = useCallback(async () => {
     if (ready) {
@@ -193,9 +195,14 @@ export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
                   {numResults > 0
                     ? <Fragment>
                       <Box mb={1}>
-                        <Grid container direction="row" justify="space-between" alignItems="center">
+                        <Grid container direction={r({xs: "column", md: "row"})} justify="space-between" alignItems="center">
                           <Typography variant="h5">{numResults} Results</Typography>
-                          <PageNav currentPage={params.pageNum} pageCount={Math.ceil(numResults / 25)}/>
+                          <Pagination
+                            color="secondary"
+                            count={Math.ceil(numResults / 25)}
+                            page={params.pageNum}
+                            onChange={(_, value: number) => {setParams({...params, pageNum: value}); setReady(true);}}
+                          />
                         </Grid>
                       </Box>
                       <Grid container spacing={2}>
@@ -203,6 +210,16 @@ export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
                           <ItemResult item={i} key={`result-${i.id}`} />
                         ))}
                       </Grid>
+                      <Box mt={2}>
+                        <Grid container justify="center">
+                          <Pagination
+                            color="secondary"
+                            count={Math.ceil(numResults / 25)}
+                            page={params.pageNum}
+                            onChange={(_, value: number) => {setParams({...params, pageNum: value}); setReady(true);}}
+                          />
+                        </Grid>
+                      </Box>
                     </Fragment>
                     : <Box textAlign="center">
                       <Typography variant="h6">

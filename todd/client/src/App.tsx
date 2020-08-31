@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Switch, BrowserRouter } from "react-router-dom";
 import { CssBaseline } from "@material-ui/core";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
-import { teal } from "@material-ui/core/colors";
+import { teal, orange } from "@material-ui/core/colors";
 import Home from './components/Home';
 import Login from './components/Login';
 import AuthRoute from "./routes/AuthRoute";
@@ -21,6 +21,9 @@ function App() {
         type: darkMode ? 'dark' : 'light',
         primary: {
           main: darkMode ? teal[600] : teal[800]
+        },
+        secondary: {
+          main: darkMode ? orange[600] : orange[800]
         }
       },
     }),
