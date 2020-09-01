@@ -1,44 +1,48 @@
 import React, { Fragment, useState, useEffect, useCallback } from "react"
 import { useLocation, useHistory } from "react-router"
-import { CircularProgress, Container, Box, Grid, Card, TextField, Typography, Select, MenuItem, FormControl, InputLabel, Button, Fab } from "@material-ui/core"
-import { Pagination } from "@material-ui/lab"
+import { CircularProgress, Container, Box, Grid, Card, Typography, Fab, Snackbar } from "@material-ui/core"
+import { Pagination, Alert } from "@material-ui/lab"
 import { Add } from "@material-ui/icons"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 
 import AddItemDialog from "./AddItemDialog"
 import ItemResult, { ItemResultData } from "./ItemResult"
-import NavBar from "./NavBar"
+import ItemSearchForm from "./ItemSearchForm"
 import useResponsive from "../hooks/useResponsive"
 import AuthUtils from "../utils/AuthUtils"
 import SearchUtils, { Location, SearchParams } from "../utils/SearchUtils"
 
-type HomeProps = {
-  darkMode: boolean,
-  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>
-}
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
   fab: {
     position: "fixed",
     bottom: theme.spacing(2),
-    right: theme.spacing(2)
+    right: theme.spacing(2),
+    zIndex: 100
+  },
+  container: {
+    minHeight: "100vh",
+    position: "relative"
+  },
+  pageContent: {
+    paddingBottom: "10em"
   }
 }))
 
-export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
+export const Home = () => {
   const [params, setParams] = useState<SearchParams>({
     name: "",
     type: -1,
     locationId: "",
     pageNum: 1
   });
-
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [results, setResults] = useState<ItemResultData[]>([]);
   const [numResults, setNumResults] = useState<number>(0);
   const [ready, setReady] = useState<boolean>(false);
   const [addItemOpen, setAddItemOpen] = useState<boolean>(false);
+  const [successSnack, setSuccessSnack] = useState<string>("");
 
   const location = useLocation();
   const history = useHistory();
@@ -91,72 +95,18 @@ export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
 
   return (
     <Fragment>
-      <NavBar darkMode={darkMode} setDarkMode={setDarkMode} />
       <Box mt={2}>
         <Container>
           <Grid container direction="column" spacing={2}>
             <Card>
               <Box p={3}>
-                <form onSubmit={(e: React.FormEvent) => { e.preventDefault(); setLoading(true); setReady(true); }}>
-                  <Grid container spacing={1} justify="flex-end">
-                    <Grid item xs={12} md={6}>
-                      <TextField
-                        label="Name"
-                        fullWidth
-                        value={params.name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          setParams({ ...params, name: e.currentTarget.value })
-                        }
-                      />
-                    </Grid>
-
-                    <Grid item xs={12} md={3}>
-                      <FormControl fullWidth>
-                        <InputLabel>Type</InputLabel>
-                        <Select
-                          fullWidth
-                          value={params.type}
-                          onChange={(e: React.ChangeEvent<{ value: unknown }>) =>
-                            setParams({ ...params, type: parseInt(e.target.value as string, 10) })
-                          }
-                        >
-                          <MenuItem value={-1}><em>Any</em></MenuItem>
-                          <MenuItem value={0}>Cable</MenuItem>
-                          <MenuItem value={1}>Consumable</MenuItem>
-                          <MenuItem value={2}>Construction</MenuItem>
-                          <MenuItem value={3}>Furnishings</MenuItem>
-                          <MenuItem value={4}>Gel</MenuItem>
-                          <MenuItem value={5}>Lighting</MenuItem>
-                          <MenuItem value={6}>Other</MenuItem>
-                          <MenuItem value={7}>Prop</MenuItem>
-                          <MenuItem value={8}>Sound</MenuItem>
-                          <MenuItem value={9}>Tool</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-
-                    <Grid item xs={12} md={3}>
-                      <FormControl fullWidth>
-                        <InputLabel shrink>Location</InputLabel>
-                        <Select
-                          fullWidth
-                          value={params.locationId}
-                          displayEmpty
-                          onChange={(e: React.ChangeEvent<{ value: unknown }>) =>
-                            setParams({ ...params, locationId: e.target.value as string })
-                          }
-                        >
-                          <MenuItem value={""}><em>Any</em></MenuItem>
-                          {locations.map((l: Location) => (<MenuItem value={l.id} key={`loc-option-${l.id}`}>{l.name}</MenuItem>))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-
-                    <Box mt={2}>
-                      <Button variant="contained" color="primary" type="submit">Search</Button>
-                    </Box>
-                  </Grid>
-                </form>
+                <ItemSearchForm
+                  params={params}
+                  setParams={setParams}
+                  setLoading={setLoading}
+                  setReady={setReady}
+                  locations={locations}
+                />
               </Box>
             </Card>
 
@@ -208,11 +158,23 @@ export const Home = ({ darkMode, setDarkMode }: HomeProps) => {
         </Container>
       </Box>
 
-      <Fab color="secondary" aria-label="add" className={classes.fab} onClick={(_) => setAddItemOpen(true)}>
+      <Fab color="secondary" aria-label="add" className={classes.fab} onClick={(_) => setAddItemOpen(true)} disabled={!AuthUtils.canWrite()}>
         <Add />
       </Fab>
+      <AddItemDialog
+        open={addItemOpen}
+        onSuccess={() => { setAddItemOpen(false); setReady(true); setSuccessSnack("Successfully added item") }}
+        onExit={() => setAddItemOpen(false)}
+        locations={locations}
+      />
 
-      <AddItemDialog open={addItemOpen} onSuccess={() => { setAddItemOpen(false); setReady(true); }} onExit={() => setAddItemOpen(false)} locations={locations} />
+      <Snackbar
+        open={successSnack !== ""}
+        autoHideDuration={5000}
+        onClose={() => setSuccessSnack("")}
+      >
+        <Alert onClose={() => setSuccessSnack("")} severity="success" variant="filled" elevation={6}>{successSnack}</Alert>
+      </Snackbar>
     </Fragment>
   );
 }

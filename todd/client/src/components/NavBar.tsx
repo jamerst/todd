@@ -2,7 +2,6 @@ import React, { useState, Fragment } from 'react';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import {
   AppBar,
-  CssBaseline,
   Grid,
   IconButton,
   Menu, MenuItem,
@@ -64,7 +63,6 @@ export const NavBar = ({ darkMode, setDarkMode }: NavBarProps) => {
 
   return (
     <Fragment>
-      <CssBaseline />
       <AppBar>
         <Toolbar>
           <Grid container direction="row" justify="space-between" alignItems="center">

@@ -99,7 +99,7 @@ export const AddItemDialog = ({ open, onSuccess, onExit, locations }: AddItemDia
     } else {
       setError("Unknown error creating item");
     }
-  }, [data]);
+  }, [data, onSuccess]);
 
   const classes = useStyles();
   const r = useResponsive();

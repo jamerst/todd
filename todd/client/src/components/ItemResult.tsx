@@ -20,6 +20,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
   card: {
     width: "100%"
   },
+  growGrid: {
+    flexGrow: 1
+  },
+  height100: {
+    height: "100%"
+  },
   itemImage: {
     height: "30em"
   },
@@ -31,6 +37,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
   },
   noImageIcon: {
     fontSize: theme.typography.h3.fontSize
+  },
+  description: {
+    display: "-webkit-box",
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden"
   }
 }));
 
@@ -50,44 +62,50 @@ const typeString = (type: number): string => {
   }
 }
 
-export const ItemResult = ({ item }: ItemResultProps) => {
+const ItemResult = ({ item }: ItemResultProps) => {
   const classes = useStyles();
 
   return (
     <Grid container item xs={12} sm={6} md={4}>
       <Card className={classes.card}>
-        <CardActionArea>
-          {item.imageId ?
-            <CardMedia
-              image={`/api/image/GetImage/${item.imageId}`}
-              title="Item image"
-              className={classes.itemImage}
-            />
-            :
-            <Grid container spacing={2} direction="column" justify="center" alignItems="center" className={classes.noItemImage}>
-              <BrokenImage className={classes.noImageIcon} />
-              <Typography variant="h6">No Image Available</Typography>
-            </Grid>
-          }
-          <CardContent>
-            <Typography variant="h5">{item.name}</Typography>
-            <Typography variant="body1" color="textSecondary">{item.description}</Typography>
-            <Box mt={1}>
-              <Grid container spacing={1} justify="flex-start">
-                <Grid item>
-                  <Chip
-                    label={typeString(item.type)}
-                  />
-                </Grid>
-                <Grid item>
-                  <Chip
-                    label={item.locationName}
-                    icon={<LocationOn />}
-                  />
-                </Grid>
+        <CardActionArea className={classes.height100}>
+          <Grid container direction="column" className={classes.height100}>
+            {item.imageId ?
+              <CardMedia
+                image={`/api/image/GetImage/${item.imageId}`}
+                title="Item image"
+                className={classes.itemImage}
+              />
+              :
+              <Grid container direction="column" justify="center" alignItems="center" className={classes.noItemImage}>
+                <BrokenImage className={classes.noImageIcon} />
+                <Typography variant="h6">No Image Available</Typography>
               </Grid>
-            </Box>
-          </CardContent>
+            }
+            <CardContent component={Grid} container direction="column" justify="space-between" className={classes.growGrid}>
+              <Grid item>
+                <Typography variant="h5">{item.name}</Typography>
+                <Typography variant="body1" color="textSecondary" className={classes.description}>{item.description}</Typography>
+              </Grid>
+              <Grid item>
+                <Box mt={1}>
+                  <Grid container spacing={1} justify="flex-start">
+                    <Grid item>
+                      <Chip
+                        label={typeString(item.type)}
+                      />
+                    </Grid>
+                    <Grid item>
+                      <Chip
+                        label={item.locationName}
+                        icon={<LocationOn />}
+                      />
+                    </Grid>
+                  </Grid>
+                </Box>
+              </Grid>
+            </CardContent>
+          </Grid>
         </CardActionArea>
       </Card>
     </Grid>

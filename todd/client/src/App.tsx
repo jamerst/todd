@@ -3,8 +3,11 @@ import { Switch, BrowserRouter } from "react-router-dom";
 import { CssBaseline } from "@material-ui/core";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import { teal, orange } from "@material-ui/core/colors";
+
 import Home from './components/Home';
 import Login from './components/Login';
+import MainLayout from "./components/MainLayout"
+
 import AuthRoute from "./routes/AuthRoute";
 import UnauthRoute from "./routes/UnauthRoute";
 import "./App.css";
@@ -32,12 +35,15 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline/>
+      <CssBaseline />
       <BrowserRouter>
         <Switch>
           <AuthRoute exact path="/">
-            <Home darkMode={darkMode} setDarkMode={setDarkMode}/>
+            <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
+              <Home />
+            </MainLayout>
           </AuthRoute>
+
           <UnauthRoute exact path="/login" component={Login} />
         </Switch>
       </BrowserRouter>
