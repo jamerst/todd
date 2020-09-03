@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Switch, BrowserRouter } from "react-router-dom";
 import { CssBaseline } from "@material-ui/core";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import { teal, orange } from "@material-ui/core/colors";
 
-import Home from './components/Home';
-import Login from './components/Login';
+import Home from "./components/Home";
+import Item from "./components/Item";
+import Login from "./components/Login";
 import MainLayout from "./components/MainLayout"
 
 import AuthRoute from "./routes/AuthRoute";
@@ -21,7 +22,7 @@ function App() {
   const theme = React.useMemo(() =>
     createMuiTheme({
       palette: {
-        type: darkMode ? 'dark' : 'light',
+        type: darkMode ? "dark" : "light",
         primary: {
           main: darkMode ? teal[600] : teal[800]
         },
@@ -41,6 +42,12 @@ function App() {
           <AuthRoute exact path="/">
             <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
               <Home />
+            </MainLayout>
+          </AuthRoute>
+
+          <AuthRoute exact path="/item/:id">
+            <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
+              <Item />
             </MainLayout>
           </AuthRoute>
 

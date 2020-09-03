@@ -93,7 +93,42 @@ namespace todd.Controllers {
 
             int totalItems = await query.CountAsync();
 
-            return new JsonResult( new { results = results, count = totalItems } );
+            return new JsonResult(new { results = results, count = totalItems });
+        }
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetItem(string id) {
+            Item item;
+            try {
+                item = await _context.Items
+                    .AsNoTracking()
+                    .Include(i => i.Location)
+                    .Include(i => i.Creator)
+                    .Include(i => i.Images)
+                    .Include(i => i.Records)
+                        .ThenInclude(r => r.User)
+                    .FirstAsync(i => i.Id == id);
+            } catch (InvalidOperationException) {
+                return NotFound();
+            }
+
+            return new JsonResult(new ItemDetails {
+                Name = item.Name,
+                Type = item.Type,
+                Description = item.Description,
+                LocationName = item.Location.Name,
+                Quantity = item.Quantity,
+                CreatorName = item.Creator.Username,
+                Created = item.Created,
+                ImageIds = item.Images.Select(i => i.Id).ToList(),
+                Records = item.Records.Select(r => new ItemDetailsRecord {
+                    Username = r.User.Username,
+                    Description = r.Description,
+                    Type = r.Type,
+                    Date = r.Date
+                }).OrderByDescending(r => r.Date).ToList()
+            });
         }
 
         public class SearchParams {

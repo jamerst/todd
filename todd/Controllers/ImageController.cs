@@ -25,7 +25,7 @@ namespace todd.Controllers {
         public async Task<IActionResult> GetImage(string id) {
             Image image;
             try {
-                image = await _context.Images.FirstAsync(i => i.Id == id);
+                image = await _context.Images.AsNoTracking().FirstAsync(i => i.Id == id);
             } catch (InvalidOperationException) {
                 return NotFound();
             }

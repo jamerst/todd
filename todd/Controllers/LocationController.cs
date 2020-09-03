@@ -19,7 +19,7 @@ namespace todd.Controllers {
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetLocations() {
-            return new JsonResult(await _context.Locations.ToListAsync());
+            return new JsonResult(await _context.Locations.AsNoTracking().ToListAsync());
         }
     }
 }

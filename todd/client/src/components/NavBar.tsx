@@ -15,11 +15,16 @@ import {
   Brightness2
 } from '@material-ui/icons';
 import AuthUtils from '../utils/AuthUtils';
+import { Link } from 'react-router-dom';
 
 const styles = makeStyles(() => createStyles({
   icon: {
     color: "inherit"
   },
+  link: {
+    color: "inherit",
+    textDecoration: "none"
+  }
 }))
 
 type NavBarProps = {
@@ -66,7 +71,9 @@ export const NavBar = ({ darkMode, setDarkMode }: NavBarProps) => {
       <AppBar>
         <Toolbar>
           <Grid container direction="row" justify="space-between" alignItems="center">
-            <Typography variant="h5">Todd</Typography>
+            <Typography variant="h5">
+              <Link to="/" className={classes.link}>Todd</Link>
+            </Typography>
             <Grid item>
               <Tooltip title="Toggle theme">
                 <IconButton

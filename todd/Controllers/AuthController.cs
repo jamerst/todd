@@ -65,7 +65,8 @@ namespace todd.Controllers {
 
         [HttpPost]
         public async Task<IActionResult> LoginReadonly(LoginDetails login) {
-            if (login.password == (await _context.Settings.FirstOrDefaultAsync(s => s.Key == "SitePassword")).Value) {
+            if (login.password == (await _context.Settings.AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Key == "SitePassword")).Value) {
                 return new JsonResult(new TokenPair { access = _authUtils.GenerateJWT() });
             } else {
                 return Unauthorized();

@@ -1,7 +1,10 @@
 import React from "react";
+import { Link } from "react-router-dom"
 import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Typography, Chip } from "@material-ui/core";
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
 import { LocationOn, BrokenImage } from '@material-ui/icons';
+
+import ItemUtils from "../utils/ItemUtils"
 
 export interface ItemResultData {
   id: string,
@@ -42,25 +45,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     display: "-webkit-box",
     WebkitLineClamp: 3,
     WebkitBoxOrient: "vertical",
-    overflow: "hidden"
+    overflow: "hidden",
+    whiteSpace: "pre-wrap"
   }
 }));
-
-const typeString = (type: number): string => {
-  switch (type) {
-    case 0: return "Cable"
-    case 1: return "Consumables"
-    case 2: return "Construction"
-    case 3: return "Furnishings"
-    case 4: return "Gel"
-    case 5: return "Lighting"
-    case 6: return "Other"
-    case 7: return "Prop"
-    case 8: return "Sound"
-    case 9: return "Tool"
-    default: return "Unknown"
-  }
-}
 
 const ItemResult = ({ item }: ItemResultProps) => {
   const classes = useStyles();
@@ -68,7 +56,7 @@ const ItemResult = ({ item }: ItemResultProps) => {
   return (
     <Grid container item xs={12} sm={6} md={4}>
       <Card className={classes.card}>
-        <CardActionArea className={classes.height100}>
+        <CardActionArea className={classes.height100} href={`/item/${item.id}`}>
           <Grid container direction="column" className={classes.height100}>
             {item.imageId ?
               <CardMedia
@@ -92,7 +80,7 @@ const ItemResult = ({ item }: ItemResultProps) => {
                   <Grid container spacing={1} justify="flex-start">
                     <Grid item>
                       <Chip
-                        label={typeString(item.type)}
+                        label={ItemUtils.typeString(item.type)}
                       />
                     </Grid>
                     <Grid item>
