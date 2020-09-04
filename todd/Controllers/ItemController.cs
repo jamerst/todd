@@ -91,6 +91,27 @@ namespace todd.Controllers {
             return Ok();
         }
 
+        [HttpPost("{id}")]
+        [Authorize(Roles = "write,admin")]
+        public async Task<IActionResult> AddImages(string id, [FromForm] IFormFileCollection images) {
+            Item item;
+            try {
+                item = await _context.Items.Include(i => i.Images).FirstAsync(i => i.Id == id);
+            } catch (InvalidOperationException) {
+                return NotFound();
+            }
+
+            List<Image> addedImages = new List<Image>();
+            if (images != null) {
+                addedImages.AddRange(await _imageService.SaveImages(images));
+                item.Images.AddRange(addedImages);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return new JsonResult(addedImages.Select(i => i.Id));
+        }
+
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> SearchItems(SearchParams search) {

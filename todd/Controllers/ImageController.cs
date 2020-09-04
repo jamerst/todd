@@ -33,5 +33,23 @@ namespace todd.Controllers {
             var imageFile = System.IO.File.OpenRead(image.Path);
             return File(imageFile, "image/jpeg");
         }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "write,admin")]
+        public async Task<IActionResult> Delete(string id) {
+            Image image;
+            try {
+                image = await _context.Images.FirstAsync(i => i.Id == id);
+            } catch (InvalidOperationException) {
+                return NotFound();
+            }
+
+            System.IO.File.Delete(image.Path);
+            _context.Images.Remove(image);
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
     }
 }

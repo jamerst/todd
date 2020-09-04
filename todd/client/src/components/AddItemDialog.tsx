@@ -195,7 +195,8 @@ export const AddItemDialog = ({ open, onSuccess, onExit, locations }: AddItemDia
             filterOptions={(options, params) => {
               const filtered = filter(options, params);
 
-              if (params.inputValue !== "") {
+              if (params.inputValue !== ""
+                && locationOptions.findIndex(l => l.name.toLowerCase() === params.inputValue.toLowerCase()) === -1) {
                 filtered.push({
                   name: params.inputValue,
                   id: "",

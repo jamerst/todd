@@ -20,7 +20,7 @@ type ItemData = {
   description: string,
   type: number,
   locationId: string | null,
-  location: { id: string, name: string } | null,
+  location: { id: string | null, name: string } | null,
   quantity: number
 }
 
@@ -167,12 +167,13 @@ export const EditItemDialog = ({ open, onSuccess, onExit, currentData }: EditIte
               } else if ((value as LocationOptionType).id !== "") {
                 setData({ ...data, location: null, locationId: (value as LocationOptionType).id });
               } else if ((value as LocationOptionType).id === "")
-                setData({ ...data, location: { id: "", name: (value as LocationOptionType).name }, locationId: null });
+                setData({ ...data, location: { id: null, name: (value as LocationOptionType).name }, locationId: null });
             }}
             filterOptions={(options, params) => {
               const filtered = filter(options, params);
 
-              if (params.inputValue !== "") {
+              if (params.inputValue !== ""
+                && locationOptions.findIndex(l => l.name.toLowerCase() === params.inputValue.toLowerCase()) === -1) {
                 filtered.push({
                   name: params.inputValue,
                   id: "",

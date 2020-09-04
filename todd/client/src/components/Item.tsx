@@ -141,7 +141,7 @@ const Item = () => {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <ItemImageGallery imageIds={data.imageIds} />
+              <ItemImageGallery imageIds={data.imageIds} setImageIds={(value) => setData({...data, imageIds: value})} itemId={id} />
             </Grid>
           </Grid>
         </Box>
