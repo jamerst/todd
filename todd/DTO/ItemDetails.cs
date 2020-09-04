@@ -8,6 +8,7 @@ namespace todd.DTO {
         public string Name { get; set; }
         public ItemType Type { get; set; }
         public string Description { get; set; }
+        public string LocationId { get; set; }
         public string LocationName { get; set; }
         public int Quantity { get; set; }
         public string CreatorName { get; set; }

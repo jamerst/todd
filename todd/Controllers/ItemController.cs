@@ -29,6 +29,10 @@ namespace todd.Controllers {
         [HttpPost]
         [Authorize(Roles = "write,admin")]
         public async Task<IActionResult> Create([FromForm] NewItem item) {
+            if (!String.IsNullOrEmpty(item.LocationId) && item.Location != null) {
+                return BadRequest("LocationId and Location cannot both be non-null");
+            }
+
             List<Image> savedImages = new List<Image>();
             if (item.Images != null) {
                 savedImages.AddRange(await _imageService.SaveImages(item.Images));
@@ -53,6 +57,36 @@ namespace todd.Controllers {
             } catch (InvalidOperationException) {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error creating item");
             }
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [Authorize(Roles= "write,admin")]
+        public async Task<IActionResult> Update(ItemUpdate update) {
+            if (!String.IsNullOrEmpty(update.LocationId) && update.Location != null) {
+                return BadRequest("LocationId and Location cannot both be non-null");
+            }
+
+            Item item;
+            try {
+                item = await _context.Items.FirstAsync(i => i.Id == update.Id);
+            } catch (InvalidOperationException) {
+                return BadRequest();
+            }
+
+            if (update.Location != null && String.IsNullOrEmpty(update.Location.Id)) {
+                _context.Locations.Add(update.Location);
+            }
+
+            item.Name = update.Name;
+            item.Description = update.Description;
+            item.Type = update.Type;
+            item.LocationId = update.LocationId;
+            item.Location = update.Location;
+            item.Quantity = update.Quantity;
+
+            await _context.SaveChangesAsync();
 
             return Ok();
         }
@@ -117,6 +151,7 @@ namespace todd.Controllers {
                 Name = item.Name,
                 Type = item.Type,
                 Description = item.Description,
+                LocationId = item.Location.Id,
                 LocationName = item.Location.Name,
                 Quantity = item.Quantity,
                 CreatorName = item.Creator.Username,

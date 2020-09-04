@@ -1,8 +1,7 @@
-import React from "react";
-import { Link } from "react-router-dom"
-import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Typography, Chip } from "@material-ui/core";
-import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
-import { LocationOn, BrokenImage } from '@material-ui/icons';
+import React from "react"
+import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Typography, Chip } from "@material-ui/core"
+import { makeStyles, createStyles, Theme } from "@material-ui/core/styles"
+import { LocationOn, BrokenImage } from '@material-ui/icons'
 
 import ItemUtils from "../utils/ItemUtils"
 

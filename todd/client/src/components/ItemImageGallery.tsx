@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from "react"
-import { Grid, Typography, Paper, GridList, GridListTile, IconButton, Fab } from "@material-ui/core"
+import { Grid, Typography, Paper, GridList, GridListTile, Fab } from "@material-ui/core"
 import { BrokenImage, NavigateNext, NavigateBefore } from "@material-ui/icons"
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
 import { grey } from "@material-ui/core/colors";
@@ -83,13 +83,13 @@ const ItemImageGallery = ({ imageIds }: ItemImageGalleryProps) => {
       // for some stupid reason, scrollIntoView won't work for the first or last element, so scroll to end manually
       if (i === 0) {
         previewContainer.current.scrollTo({ left: 0, behavior: "smooth" });
-      } else if (i === imageIds.length-1) {
+      } else if (i === imageIds.length - 1) {
         previewContainer.current.scrollTo({ left: previewContainer.current.scrollWidth, behavior: "smooth" });
       } else {
         previewContainer.current.children[i].scrollIntoView({ behavior: "smooth" });
       }
     }
-  }, [previewContainer])
+  }, [previewContainer, imageIds.length])
 
   if (imageIds.length === 0) {
     return (
@@ -103,7 +103,7 @@ const ItemImageGallery = ({ imageIds }: ItemImageGalleryProps) => {
   return (
     <Paper>
       <div className={classes.imageContainer}>
-        <img src={`/api/image/GetImage/${imageIds[current]}`} className={classes.itemImage} />
+        <img src={`/api/image/GetImage/${imageIds[current]}`} className={classes.itemImage} alt={`Number ${current + 1}`} />
         <Fab
           color="primary"
           size="small"
@@ -127,8 +127,8 @@ const ItemImageGallery = ({ imageIds }: ItemImageGalleryProps) => {
       </div>
       <GridList className={classes.gridList} cols={4} style={{ margin: 0 }} ref={previewContainer}>
         {imageIds.map((image, index) => (
-          <GridListTile onClick={() => changeImage(index)}>
-            <img src={`/api/image/GetImage/${image}`} className={classes.preview} data-current={current === index} />
+          <GridListTile onClick={() => changeImage(index)} key={`preview-img-${image}`}>
+            <img src={`/api/image/GetImage/${image}`} className={classes.preview} data-current={current === index} alt={`Preview ${index + 1}`} />
           </GridListTile>)
         )}
       </GridList>

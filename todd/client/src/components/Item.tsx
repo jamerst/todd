@@ -1,14 +1,15 @@
-import React, { useEffect, useState, useCallback } from "react"
+import React, { useEffect, useState, useCallback, Fragment } from "react"
 import { useParams, Link } from "react-router-dom"
-import { Grid, CircularProgress, Typography, Container, Paper, Box, Chip } from "@material-ui/core"
+import { Grid, CircularProgress, Typography, Container, Paper, Box, Chip, Fab } from "@material-ui/core"
 import { Timeline, TimelineItem, TimelineSeparator, TimelineDot, TimelineConnector, TimelineContent, TimelineOppositeContent } from "@material-ui/lab"
-import { Help, Create, CallMade, CallReceived, LocationOn } from "@material-ui/icons"
+import { Help, Create, CallMade, CallReceived, LocationOn, Edit } from "@material-ui/icons"
 import { blue } from "@material-ui/core/colors"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 
 import ItemImageGallery from "./ItemImageGallery"
 import AuthUtils from "../utils/AuthUtils"
 import ItemUtils from "../utils/ItemUtils"
+import EditItemDialog from "./EditItemDialog"
 
 type Record = {
   username: string,
@@ -21,6 +22,7 @@ type ItemDetails = {
   name: string,
   type: number,
   description: string,
+  locationId: string,
   locationName: string,
   quantity: number,
   creatorName: string,
@@ -41,6 +43,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
   description: {
     whiteSpace: "pre-wrap"
   },
+  fab: {
+    position: "fixed",
+    bottom: theme.spacing(2),
+    right: theme.spacing(2),
+    zIndex: 100
+  },
 }))
 
 const Item = () => {
@@ -51,6 +59,7 @@ const Item = () => {
     name: "",
     type: -1,
     description: "",
+    locationId: "",
     locationName: "",
     quantity: 0,
     creatorName: "",
@@ -60,6 +69,7 @@ const Item = () => {
   });
   const [loading, setLoading] = useState<boolean>(true);
   const [notFound, setNotFound] = useState<boolean>(false);
+  const [editItemOpen, setEditItemOpen] = useState<boolean>(false);
 
   const fetchDetails = useCallback(async () => {
     const response = await AuthUtils.authFetch(`/api/item/GetItem/${id}`);
@@ -72,7 +82,7 @@ const Item = () => {
     }
 
     setLoading(false);
-  }, [id])
+  }, [id]);
 
   useEffect(() => {
     fetchDetails();
@@ -98,86 +108,107 @@ const Item = () => {
   }
 
   return (
-    <Container>
-      <Box mt={2}>
-        <Typography variant="h3">{data.name}</Typography>
-        <Grid container>
-          <Grid item xs={12} md={6}>
-            <Grid container item spacing={1} justify="flex-start">
-              <Grid item>
-                <Chip
-                  label={ItemUtils.typeString(data.type)}
-                />
+    <Fragment>
+      <Container>
+        <Box mt={2}>
+          <Typography variant="h3">{data.name}</Typography>
+          <Grid container>
+            <Grid item xs={12} md={6}>
+              <Grid container item spacing={1} justify="flex-start">
+                <Grid item>
+                  <Chip
+                    label={ItemUtils.typeString(data.type)}
+                  />
+                </Grid>
+                <Grid item>
+                  <Chip
+                    label={data.locationName}
+                    icon={<LocationOn />}
+                  />
+                </Grid>
               </Grid>
-              <Grid item>
-                <Chip
-                  label={data.locationName}
-                  icon={<LocationOn />}
-                />
-              </Grid>
+
+              <Box m={1}>
+                <Typography variant="h6">
+                  <strong>Quantity:</strong> {data.quantity}
+                </Typography>
+              </Box>
+
+              <Box m={1}>
+                <Typography variant="h6"><strong>Description:</strong></Typography>
+                <Typography variant="body1" className={classes.description}>{data.description}</Typography>
+              </Box>
             </Grid>
 
-            <Box m={1}>
-              <Typography variant="h6">
-                <strong>Quantity:</strong> {data.quantity}
-              </Typography>
-            </Box>
-
-            <Box m={1}>
-              <Typography variant="h6"><strong>Description:</strong></Typography>
-              <Typography variant="body1" className={classes.description}>{data.description}</Typography>
-            </Box>
+            <Grid item xs={12} md={6}>
+              <ItemImageGallery imageIds={data.imageIds} />
+            </Grid>
           </Grid>
+        </Box>
 
-          <Grid item xs={12} md={6}>
-            <ItemImageGallery imageIds={data.imageIds} />
-          </Grid>
-        </Grid>
-      </Box>
+        <Typography variant="h4">Item History</Typography>
+        <Timeline>
+          {data.records.map(r => (
+            <TimelineItem>
+              <TimelineOppositeContent className={classes.opposite}>
+                <Typography variant="body2">{new Date(r.date).toLocaleDateString()}</Typography>
+                <em>{r.username}</em>
+              </TimelineOppositeContent>
+              <TimelineSeparator>
+                {r.type === 0 ?
+                  (<TimelineDot color="primary"><CallReceived /></TimelineDot>)
+                  :
+                  (<TimelineDot color="secondary"><CallMade /></TimelineDot>)
+                }
+                <TimelineConnector />
+              </TimelineSeparator>
+              <TimelineContent>
+                <Paper className={classes.paper}>
+                  <Typography variant="h6">Item {r.type === 0 ? "Returned" : "Removed"}</Typography>
+                  <Typography>{r.description}</Typography>
+                </Paper>
+              </TimelineContent>
+            </TimelineItem>
+          ))}
 
-      <Typography variant="h4">Item History</Typography>
-      <Timeline>
-        {data.records.map(r => (
           <TimelineItem>
             <TimelineOppositeContent className={classes.opposite}>
-              <Typography variant="body2">{new Date(r.date).toLocaleDateString()}</Typography>
-              <em>{r.username}</em>
+              <Typography variant="body2">{new Date(data.created).toLocaleDateString()}</Typography>
+              <em>{data.creatorName}</em>
             </TimelineOppositeContent>
             <TimelineSeparator>
-              { r.type === 0 ?
-                (<TimelineDot color="primary"><CallReceived /></TimelineDot>)
-              :
-                (<TimelineDot color="secondary"><CallMade /></TimelineDot>)
-              }
-              <TimelineConnector />
+              <TimelineDot>
+                <Create />
+              </TimelineDot>
             </TimelineSeparator>
             <TimelineContent>
               <Paper className={classes.paper}>
-                <Typography variant="h6">Item { r.type === 0 ? "Returned" : "Removed"}</Typography>
-                <Typography>{r.description}</Typography>
+                <Typography variant="h6">Item Created</Typography>
               </Paper>
             </TimelineContent>
           </TimelineItem>
-        ))}
+        </Timeline>
+      </Container>
 
-        <TimelineItem>
-          <TimelineOppositeContent className={classes.opposite}>
-            <Typography variant="body2">{new Date(data.created).toLocaleDateString()}</Typography>
-            <em>{data.creatorName}</em>
-          </TimelineOppositeContent>
-          <TimelineSeparator>
-            <TimelineDot>
-              <Create />
-            </TimelineDot>
-          </TimelineSeparator>
-          <TimelineContent>
-            <Paper className={classes.paper}>
-              <Typography variant="h6">Item Created</Typography>
-            </Paper>
-          </TimelineContent>
-        </TimelineItem>
-      </Timeline>
-    </Container>
+      <Fab color="secondary" aria-label="add" className={classes.fab} onClick={(_) => setEditItemOpen(true)} disabled={!AuthUtils.canWrite()}>
+        <Edit />
+      </Fab>
+
+      <EditItemDialog
+        open={editItemOpen}
+        onSuccess={() => { setEditItemOpen(false); fetchDetails(); }}
+        onExit={() => setEditItemOpen(false)}
+        currentData={{
+          id: id,
+          name: data.name,
+          description: data.description,
+          type: data.type,
+          locationId: data.locationId,
+          location: null,
+          quantity: data.quantity
+        }}
+      />
+    </Fragment>
   );
 }
 

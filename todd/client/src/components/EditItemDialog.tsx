@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useCallback } from "react"
-import { Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, FormControl, Select, MenuItem, InputLabel, Grid, Typography, Box, Collapse } from "@material-ui/core"
+import React, { useState, useMemo, useCallback, useEffect } from "react"
+import { Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, FormControl, Select, MenuItem, InputLabel, Grid, Box, Collapse } from "@material-ui/core"
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles"
 
 import { Location } from "../utils/SearchUtils";
@@ -7,21 +7,21 @@ import { Alert, Autocomplete, createFilterOptions } from "@material-ui/lab";
 import useResponsive from "../hooks/useResponsive";
 import AuthUtils from "../utils/AuthUtils";
 
-type AddItemDialogProps = {
+type EditItemDialogProps = {
   open: boolean
   onSuccess: Function,
   onExit: Function
-  locations: Location[]
+  currentData: ItemData
 }
 
 type ItemData = {
+  id: string,
   name: string,
   description: string,
   type: number,
   locationId: string | null,
   location: { id: string, name: string } | null,
-  quantity: number,
-  images: FileList | null
+  quantity: number
 }
 
 const filter = createFilterOptions<LocationOptionType>();
@@ -36,17 +36,9 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export const AddItemDialog = ({ open, onSuccess, onExit, locations }: AddItemDialogProps) => {
-  const [data, setData] = useState<ItemData>({
-    name: "",
-    description: "",
-    type: 0,
-    locationId: "",
-    location: { id: "", name: "" },
-    quantity: 1,
-    images: null
-  });
-
+export const EditItemDialog = ({ open, onSuccess, onExit, currentData }: EditItemDialogProps) => {
+  const [data, setData] = useState<ItemData>(currentData);
+  const [locations, setLocations] = useState<Location[]>([]);
   const [error, setError] = useState("");
 
   const locationOptions: LocationOptionType[] = useMemo(() => locations.map(l => {
@@ -57,45 +49,29 @@ export const AddItemDialog = ({ open, onSuccess, onExit, locations }: AddItemDia
     }
   }), [locations]);
 
-  const createItem = useCallback(async () => {
-    let formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    formData.append("type", data.type.toString());
+  useEffect(() => {
+    const fetchLocations = async () => {
+      const response = await AuthUtils.authFetch("/api/location/GetLocations", {
+        method: "GET"
+      });
 
-    if (data.locationId !== null) {
-      formData.append("locationId", data.locationId);
-    }
-
-    if (data.location !== null) {
-      formData.append("location[id]", "");
-      formData.append("location[name]", data.location.name);
-    }
-
-    formData.append("quantity", data.quantity.toString());
-
-    if (data.images !== null) {
-      for (let i = 0; i < data.images.length; i++) {
-        formData.append("images", data.images[i]);
+      if (response.ok) {
+        setLocations(await response.json());
       }
     }
 
-    const response = await AuthUtils.authFetch("/api/item/Create", {
+    fetchLocations();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const updateItem = useCallback(async () => {
+    const response = await AuthUtils.authFetch("/api/item/Update", {
       method: "POST",
-      body: formData
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
     });
 
     if (response.ok) {
       onSuccess();
-      setData({
-        name: "",
-        description: "",
-        type: 0,
-        locationId: "",
-        location: { id: "", name: "" },
-        quantity: 1,
-        images: null
-      });
     } else {
       setError("Unknown error creating item");
     }
@@ -106,8 +82,8 @@ export const AddItemDialog = ({ open, onSuccess, onExit, locations }: AddItemDia
 
   return (
     <Dialog open={open} aria-labelledby="dialog-title" maxWidth="sm" fullWidth fullScreen={r({ xs: true, md: false })}>
-      <DialogTitle id="dialog-title">Add New Item</DialogTitle>
-      <form className={classes.form} onSubmit={(e) => { e.preventDefault(); createItem(); }}>
+      <DialogTitle id="dialog-title">Edit Item Details</DialogTitle>
+      <form className={classes.form} onSubmit={(e) => { e.preventDefault(); updateItem(); }}>
         <DialogContent>
           <Collapse in={error !== ""}>
             <Box mb={2}>
@@ -127,7 +103,7 @@ export const AddItemDialog = ({ open, onSuccess, onExit, locations }: AddItemDia
             value={data.description}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData({ ...data, description: e.target.value })}
             multiline
-            rows={5}
+            rows={8}
             label="Description"
             fullWidth
             variant="filled"
@@ -181,6 +157,7 @@ export const AddItemDialog = ({ open, onSuccess, onExit, locations }: AddItemDia
             options={locationOptions}
             fullWidth
             freeSolo
+            value={locationOptions.find(l => l.id === data.locationId)}
             getOptionLabel={l => l.name ?? "(Unknown)"}
             renderOption={l => l.displayName ?? "(Unknown)"}
             renderInput={(props) => <TextField {...props} label="Location" variant="filled" required />}
@@ -206,24 +183,10 @@ export const AddItemDialog = ({ open, onSuccess, onExit, locations }: AddItemDia
               return filtered;
             }}
           />
-
-          <input id="item-images" type="file" accept="image/*" multiple hidden onChange={e => setData({ ...data, images: e.target.files })} />
-          <label htmlFor="item-images">
-            <Button variant="contained" color="secondary" component="span">Add Images</Button>
-          </label>
-          <Box mt={1}>
-            {data.images !== null && data.images.length > 0 ?
-              <Typography variant="body1">
-                {data.images.length} image{data.images.length > 1 ? "s" : ""} selected
-              </Typography>
-              :
-              <Typography variant="body1">No images selected</Typography>
-            }
-          </Box>
         </DialogContent>
         <DialogActions>
           <Button color="primary" onClick={() => onExit()}>Close</Button>
-          <Button color="primary" variant="contained" type="submit">Add Item</Button>
+          <Button color="primary" variant="contained" type="submit">Save</Button>
         </DialogActions>
       </form>
     </Dialog>
@@ -236,4 +199,4 @@ interface LocationOptionType {
   displayName: string;
 }
 
-export default AddItemDialog;
+export default EditItemDialog;
