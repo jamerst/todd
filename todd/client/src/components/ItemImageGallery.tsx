@@ -73,31 +73,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     padding: theme.spacing(1),
     backgroundColor: theme.palette.action.selected,
   },
-  previewTile: {
-    display: "grid",
-    justifyContent: "center",
-    gridTemplateColumns: "33% 33% 33%",
-    gridTemplateRows: "33% 33% 33%",
-    height: "100%",
-    "& img": {
-      width: "100%",
-      height: "100%",
-      gridRow: "1/-1",
-      gridColumn: "1/-1",
-      alignSelf: "center",
-      justifySelf: "center",
-      objectFit: "cover",
-    },
-    "& button": {
-      alignSelf: "start",
-      justifySelf: "end",
-      gridRow: 1,
-      gridColumn: 3,
-      zIndex: 1000,
-      marginRight: theme.spacing(.5),
-      marginTop: theme.spacing(.5)
-    }
-  },
   tileBar: {
     color: theme.palette.common.white,
     height: "auto"
@@ -106,7 +81,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 const ItemImageGallery = ({ imageIds, setImageIds, itemId }: ItemImageGalleryProps) => {
   const classes = useStyles();
-  const previewContainer = useRef<HTMLUListElement>(null);
+  const preview = useRef<HTMLUListElement>(null);
 
   const [current, setCurrent] = useState<number>(0);
   const [deleteIndex, setDeleteIndex] = useState<number>(-1);
@@ -114,17 +89,18 @@ const ItemImageGallery = ({ imageIds, setImageIds, itemId }: ItemImageGalleryPro
   const changeImage = useCallback((i: number) => {
     setCurrent(i);
 
-    if (previewContainer.current !== null) {
-      // for some stupid reason, scrollIntoView won't work for the first or last element, so scroll to end manually
-      if (i === 0) {
-        previewContainer.current.scrollTo({ left: 0, behavior: "smooth" });
-      } else if (i === imageIds.length - 1) {
-        previewContainer.current.scrollTo({ left: previewContainer.current.scrollWidth, behavior: "smooth" });
-      } else {
-        previewContainer.current.children[i].scrollIntoView({ behavior: "smooth" });
+    if (preview.current !== null) {
+      // can't use scrollIntoView as that scrolls the entire page, which is horrible on mobile
+      // scrollIntoView also won't work for the first or last image, no idea why
+      const elemStart = preview.current.children[0].clientWidth * i;
+      const elemEnd = preview.current.children[0].clientWidth * (i + 1);
+
+      if (preview.current.scrollLeft >= elemStart
+        || preview.current.scrollLeft + preview.current.clientWidth <= elemEnd) {
+        preview.current.scrollTo({ left: preview.current.children[0].clientWidth * i, behavior: "smooth" })
       }
     }
-  }, [previewContainer, imageIds.length]);
+  }, [preview]);
 
   const deleteImage = useCallback(async (i: number) => {
     const response = await AuthUtils.authFetch(`/api/image/Delete/${imageIds[i]}`, {
@@ -206,18 +182,17 @@ const ItemImageGallery = ({ imageIds, setImageIds, itemId }: ItemImageGalleryPro
         </Fab>
       </div>
 
-      <GridList className={classes.gridList} cols={4} style={{ margin: 0 }} ref={previewContainer}>
+      <GridList className={classes.gridList} cols={4} style={{ margin: 0 }} ref={preview}>
         {imageIds.map((image, index) => (
           <GridListTile onClick={() => changeImage(index)} key={`preview-img-${image}`}>
             <img src={`/api/image/GetImage/${image}`} className={classes.preview} data-current={current === index} alt={`Preview ${index + 1}`} />
-            <GridListTileBar className={classes.tileBar}
-              title={`Image ${index + 1}`}
-              actionIcon={AuthUtils.canWrite() ? (
-                <Tooltip title="Delete image">
-                  <IconButton color="inherit" size="small" onClick={() => setDeleteIndex(index)}><Clear /></IconButton>
-                </Tooltip>
-              ) : null}
-            />
+            {AuthUtils.canWrite() ?
+              <GridListTileBar className={classes.tileBar}
+                actionIcon={
+                  <Tooltip title="Delete image">
+                    <IconButton color="inherit" size="small" onClick={() => setDeleteIndex(index)}><Clear /></IconButton>
+                  </Tooltip>}
+              /> : null}
           </GridListTile>)
         )}
 

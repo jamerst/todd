@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, Fragment } from "react"
 import { useParams, Link } from "react-router-dom"
-import { Grid, CircularProgress, Typography, Container, Paper, Box, Chip, Fab } from "@material-ui/core"
+import { Grid, CircularProgress, Typography, Container, Paper, Box, Chip, Fab, Button } from "@material-ui/core"
 import { Timeline, TimelineItem, TimelineSeparator, TimelineDot, TimelineConnector, TimelineContent, TimelineOppositeContent } from "@material-ui/lab"
 import { Help, Create, CallMade, CallReceived, LocationOn, Edit } from "@material-ui/icons"
 import { blue } from "@material-ui/core/colors"
@@ -10,8 +10,10 @@ import ItemImageGallery from "./ItemImageGallery"
 import AuthUtils from "../utils/AuthUtils"
 import ItemUtils from "../utils/ItemUtils"
 import EditItemDialog from "./EditItemDialog"
+import CreateRecordDialog from "./CreateRecordDialog"
 
 type Record = {
+  id: string,
   username: string,
   type: number,
   description: string,
@@ -34,7 +36,8 @@ type ItemDetails = {
 const useStyles = makeStyles((theme: Theme) => createStyles({
   paper: {
     maxWidth: "30em",
-    padding: theme.spacing(1)
+    padding: theme.spacing(1),
+    whiteSpace: "pre-wrap"
   },
   opposite: {
     flex: "unset",
@@ -70,6 +73,7 @@ const Item = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [notFound, setNotFound] = useState<boolean>(false);
   const [editItemOpen, setEditItemOpen] = useState<boolean>(false);
+  const [createRecordOpen, setCreateRecordOpen] = useState<boolean>(false);
 
   const fetchDetails = useCallback(async () => {
     const response = await AuthUtils.authFetch(`/api/item/GetItem/${id}`);
@@ -90,9 +94,11 @@ const Item = () => {
 
   if (loading) {
     return (
-      <Grid container alignItems="center" justify="center">
-        <CircularProgress />
-      </Grid>
+      <Box mt={2}>
+        <Grid container alignItems="center" justify="center">
+          <CircularProgress />
+        </Grid>
+      </Box>
     )
   }
 
@@ -111,8 +117,20 @@ const Item = () => {
     <Fragment>
       <Container>
         <Box mt={2}>
-          <Typography variant="h3">{data.name}</Typography>
           <Grid container>
+            <Grid item xs={12} md={6}>
+              <Typography variant="h3">{data.name}</Typography>
+            </Grid>
+            <Grid container item xs={12} md={6} justify="flex-end" alignItems="center">
+              <Button color="secondary" variant="contained" onClick={() => setCreateRecordOpen(true)}>Create Record</Button>
+              <CreateRecordDialog
+                open={createRecordOpen}
+                onSuccess={() => {setCreateRecordOpen(false); fetchDetails();}}
+                onExit={() => setCreateRecordOpen(false)}
+                id={id}
+                latestRecordType={data.records[0] ? data.records[0].type : 0}
+              />
+            </Grid>
             <Grid item xs={12} md={6}>
               <Grid container item spacing={1} justify="flex-start">
                 <Grid item>
@@ -149,7 +167,7 @@ const Item = () => {
         <Typography variant="h4">Item History</Typography>
         <Timeline>
           {data.records.map(r => (
-            <TimelineItem>
+            <TimelineItem key={`record-${r.id}`}>
               <TimelineOppositeContent className={classes.opposite}>
                 <Typography variant="body2">{new Date(r.date).toLocaleDateString()}</Typography>
                 <em>{r.username}</em>
@@ -165,7 +183,7 @@ const Item = () => {
               <TimelineContent>
                 <Paper className={classes.paper}>
                   <Typography variant="h6">Item {r.type === 0 ? "Returned" : "Removed"}</Typography>
-                  <Typography>{r.description}</Typography>
+                  <Typography variant="body2">{r.description}</Typography>
                 </Paper>
               </TimelineContent>
             </TimelineItem>

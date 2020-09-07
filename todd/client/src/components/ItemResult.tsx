@@ -4,6 +4,7 @@ import { makeStyles, createStyles, Theme } from "@material-ui/core/styles"
 import { LocationOn, BrokenImage } from '@material-ui/icons'
 
 import ItemUtils from "../utils/ItemUtils"
+import { useHistory } from "react-router"
 
 export interface ItemResultData {
   id: string,
@@ -51,11 +52,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 const ItemResult = ({ item }: ItemResultProps) => {
   const classes = useStyles();
+  const history = useHistory();
 
   return (
     <Grid container item xs={12} sm={6} md={4}>
       <Card className={classes.card}>
-        <CardActionArea className={classes.height100} href={`/item/${item.id}`}>
+        <CardActionArea className={classes.height100} onClick={() => history.push(`/item/${item.id}`)}>
           <Grid container direction="column" className={classes.height100}>
             {item.imageId ?
               <CardMedia

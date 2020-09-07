@@ -112,6 +112,44 @@ namespace todd.Controllers {
             return new JsonResult(addedImages.Select(i => i.Id));
         }
 
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "write,admin")]
+        public async Task<IActionResult> Delete(string id) {
+            Item item;
+            try {
+                item = await _context.Items.Include(i => i.Images).FirstAsync(i => i.Id == id);
+            } catch (InvalidOperationException) {
+                return NotFound();
+            }
+
+            _context.Items.Remove(item);
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "write,admin")]
+        public async Task<IActionResult> CreateRecord(Record record) {
+            Record newRecord = new Record {
+                ItemId = record.ItemId,
+                Type = record.Type,
+                Description = record.Description,
+                Date = record.Date,
+                UserId = User.FindFirstValue(ClaimTypes.Name)
+            };
+
+            try {
+                _context.Records.Add(newRecord);
+                await _context.SaveChangesAsync();
+            } catch (Exception) {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error creating record");
+            }
+
+            return Ok();
+        }
+
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> SearchItems(SearchParams search) {
@@ -179,7 +217,8 @@ namespace todd.Controllers {
                 Created = item.Created,
                 ImageIds = item.Images.Select(i => i.Id).ToList(),
                 Records = item.Records.Select(r => new ItemDetailsRecord {
-                    Username = r.User.Username,
+                    Id = r.Id,
+                    Username = r.User != null ? r.User.Username : "(Unknown)",
                     Description = r.Description,
                     Type = r.Type,
                     Date = r.Date

@@ -1,11 +1,12 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react"
 import { Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, FormControl, Select, MenuItem, InputLabel, Grid, Box, Collapse } from "@material-ui/core"
+import { Alert, Autocomplete, createFilterOptions, AlertTitle } from "@material-ui/lab"
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles"
 
 import { Location } from "../utils/SearchUtils";
-import { Alert, Autocomplete, createFilterOptions } from "@material-ui/lab";
 import useResponsive from "../hooks/useResponsive";
 import AuthUtils from "../utils/AuthUtils";
+import { useHistory } from "react-router";
 
 type EditItemDialogProps = {
   open: boolean
@@ -40,6 +41,8 @@ export const EditItemDialog = ({ open, onSuccess, onExit, currentData }: EditIte
   const [data, setData] = useState<ItemData>(currentData);
   const [locations, setLocations] = useState<Location[]>([]);
   const [error, setError] = useState("");
+
+  const history = useHistory();
 
   const locationOptions: LocationOptionType[] = useMemo(() => locations.map(l => {
     return {
@@ -76,6 +79,16 @@ export const EditItemDialog = ({ open, onSuccess, onExit, currentData }: EditIte
       setError("Unknown error creating item");
     }
   }, [data, onSuccess]);
+
+  const deleteItem = useCallback(async () => {
+    const response = await AuthUtils.authFetch(`/api/item/Delete/${data.id}`, {
+      method: "DELETE"
+    });
+
+    if (response.ok) {
+      history.push("/")
+    }
+  }, [data, history]);
 
   const classes = useStyles();
   const r = useResponsive();
@@ -184,6 +197,13 @@ export const EditItemDialog = ({ open, onSuccess, onExit, currentData }: EditIte
               return filtered;
             }}
           />
+          <Alert severity="error" variant="filled" icon={false}>
+            <AlertTitle>Delete Item</AlertTitle>
+            <strong>This action cannot be undone.</strong> All item information and images will be removed.
+            <Box mt={2}>
+              <Button color="inherit" variant="outlined" onClick={deleteItem}>Delete</Button>
+            </Box>
+          </Alert>
         </DialogContent>
         <DialogActions>
           <Button color="primary" onClick={() => onExit()}>Close</Button>

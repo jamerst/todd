@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using todd.Data;
@@ -9,9 +10,10 @@ using todd.Data;
 namespace todd.Migrations
 {
     [DbContext(typeof(ToddContext))]
-    partial class ToddContextModelSnapshot : ModelSnapshot
+    [Migration("20200907141856_CascadeDelete")]
+    partial class CascadeDelete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
