@@ -2,10 +2,10 @@ import React, { useState, useMemo, useCallback } from "react"
 import { Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, FormControl, Select, MenuItem, InputLabel, Grid, Typography, Box, Collapse } from "@material-ui/core"
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles"
 
-import { Location } from "../utils/SearchUtils";
+import { Location } from "../../utils/SearchUtils";
 import { Alert, Autocomplete, createFilterOptions } from "@material-ui/lab";
-import useResponsive from "../hooks/useResponsive";
-import AuthUtils from "../utils/AuthUtils";
+import useResponsive from "../../hooks/useResponsive";
+import AuthUtils from "../../utils/AuthUtils";
 
 type AddItemDialogProps = {
   open: boolean

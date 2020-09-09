@@ -3,7 +3,7 @@ import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Typography, Ch
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles"
 import { LocationOn, BrokenImage } from '@material-ui/icons'
 
-import ItemUtils from "../utils/ItemUtils"
+import ItemUtils from "../../utils/ItemUtils"
 import { useHistory } from "react-router"
 
 export interface ItemResultData {

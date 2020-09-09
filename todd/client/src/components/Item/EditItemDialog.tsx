@@ -3,9 +3,9 @@ import { Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, F
 import { Alert, Autocomplete, createFilterOptions, AlertTitle } from "@material-ui/lab"
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles"
 
-import { Location } from "../utils/SearchUtils";
-import useResponsive from "../hooks/useResponsive";
-import AuthUtils from "../utils/AuthUtils";
+import { Location } from "../../utils/SearchUtils";
+import useResponsive from "../../hooks/useResponsive";
+import AuthUtils from "../../utils/AuthUtils";
 import { useHistory } from "react-router";
 
 type EditItemDialogProps = {

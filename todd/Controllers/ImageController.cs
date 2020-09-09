@@ -1,15 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using todd.Data;
 using todd.Models;
-using todd.Utils;
 
 namespace todd.Controllers {
     [ApiController]

@@ -80,7 +80,7 @@ export default class AuthUtils {
     window.location.pathname = "/login";
   }
 
-  static async authFetch(url: string, options?: RequestInit): Promise<Response> {
+  static async authFetch(url: string, options?: RequestInit, refresh: boolean = true): Promise<Response> {
     const response = await fetch(url, {
       ...options,
       headers: {
@@ -89,7 +89,7 @@ export default class AuthUtils {
       }
     });
 
-    if (response.status === 401) {
+    if (response.status === 401 && refresh) {
       if (await this.refresh()) {
         return await this.authFetch(url, options);
       } else {

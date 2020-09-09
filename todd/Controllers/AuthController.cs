@@ -45,7 +45,7 @@ namespace todd.Controllers {
             || user.HashSize != _options.HashSize
             || user.SaltSize != _options.SaltSize) {
                 byte[] salt = _authUtils.GenerateSalt();
-                string hash = _authUtils.Hash(login.password, salt, user.HashIterations, user.HashSize);
+                string hash = _authUtils.Hash(login.password, salt, _options.HashIter, _options.HashSize);
 
                 user.Salt = Convert.ToBase64String(salt);
                 user.Password = hash;

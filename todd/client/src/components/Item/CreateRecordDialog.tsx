@@ -5,8 +5,8 @@ import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/picker
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles"
 import DateFnsUtils from "@date-io/date-fns"
 
-import useResponsive from "../hooks/useResponsive";
-import AuthUtils from "../utils/AuthUtils";
+import useResponsive from "../../hooks/useResponsive";
+import AuthUtils from "../../utils/AuthUtils";
 
 type CreateRecordDialogProps = {
   open: boolean,

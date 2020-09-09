@@ -5,7 +5,7 @@ import { makeStyles, createStyles, Theme } from "@material-ui/core/styles"
 import { grey } from "@material-ui/core/colors"
 
 import RemoveImageAlertDialog from "./RemoveImageAlertDialog"
-import AuthUtils from "../utils/AuthUtils"
+import AuthUtils from "../../utils/AuthUtils"
 
 type ItemImageGalleryProps = {
   imageIds: string[],

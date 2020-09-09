@@ -1,6 +1,6 @@
 import React from "react"
 import { Grid, TextField, FormControl, InputLabel, Select, MenuItem, Box, Button } from "@material-ui/core"
-import { SearchParams, Location } from "../utils/SearchUtils"
+import { SearchParams, Location } from "../../utils/SearchUtils"
 
 type ItemSearchFormProps = {
   params: SearchParams,

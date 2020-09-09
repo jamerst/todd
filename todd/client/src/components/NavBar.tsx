@@ -55,7 +55,7 @@ const UserMenu = () => {
       </Tooltip>
 
       <Menu open={Boolean(userMenu)} anchorEl={userMenu} onClose={() => setUserMenu(null)}>
-        {AuthUtils.canWrite() ? (<MenuItem>My Account</MenuItem>) : null}
+        {AuthUtils.canWrite() ? (<MenuItem><Link className={classes.link} to="/account">My Account</Link></MenuItem>) : null}
         {AuthUtils.isAdmin() ? (<MenuItem>Admin Settings</MenuItem>) : null}
         <MenuItem onClick={() => logout()}>Logout</MenuItem>
       </Menu>

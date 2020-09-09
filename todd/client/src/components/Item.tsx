@@ -6,11 +6,11 @@ import { Help, Create, CallMade, CallReceived, LocationOn, Edit } from "@materia
 import { blue } from "@material-ui/core/colors"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 
-import ItemImageGallery from "./ItemImageGallery"
+import ItemImageGallery from "./Item/ItemImageGallery"
 import AuthUtils from "../utils/AuthUtils"
 import ItemUtils from "../utils/ItemUtils"
-import EditItemDialog from "./EditItemDialog"
-import CreateRecordDialog from "./CreateRecordDialog"
+import EditItemDialog from "./Item/EditItemDialog"
+import CreateRecordDialog from "./Item/CreateRecordDialog"
 
 type Record = {
   id: string,
