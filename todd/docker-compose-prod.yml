@@ -17,6 +17,7 @@ services:
         ASPNETCORE_Kestrel__Certificates__Default__Password: PASSWORD_HERE
         ASPNETCORE_Kestrel__Certificates__Default__Path: /certs/todd-https.pfx
         TODD_JWT_KEY: JWT_SECRET_KEY_HERE
+        TODD_JWT_REFRESH_KEY: JWT_SECRET_KEY_HERE
     restart: always
   db:
     image: "postgres:12.1"

@@ -54,7 +54,10 @@ export default class AuthUtils {
       })
     });
 
-    if (!response.ok) return false;
+    console.log(response.ok);
+    if (!response.ok) {
+      return false;
+    }
 
     const data = await response.json();
     this.saveTokens(data);
@@ -72,10 +75,7 @@ export default class AuthUtils {
       }
     });
 
-    localStorage.removeItem("todd-access");
-    localStorage.removeItem("todd-refresh");
-    localStorage.removeItem("todd-access-expiry");
-    localStorage.removeItem("todd-role");
+    this.destroyTokens();
 
     window.location.pathname = "/login";
   }
@@ -90,9 +90,11 @@ export default class AuthUtils {
     });
 
     if (response.status === 401) {
-      if (this.getRefresh() && this.refresh()) {
+      if (await this.refresh()) {
         return await this.authFetch(url, options);
       } else {
+        this.destroyTokens();
+        window.location.pathname = "/login";
         return response;
       }
     } else {
@@ -110,6 +112,13 @@ export default class AuthUtils {
     const jwtPayload: any = jwt(tokens.access);
     localStorage.setItem("todd-role", jwtPayload.role ?? "readonly");
     localStorage.setItem("todd-access-expiry", jwtPayload.exp);
+  }
+
+  static destroyTokens() {
+    localStorage.removeItem("todd-access");
+    localStorage.removeItem("todd-refresh");
+    localStorage.removeItem("todd-access-expiry");
+    localStorage.removeItem("todd-role");
   }
 
   static isLoggedIn() {

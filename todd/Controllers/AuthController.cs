@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 using todd.Configuration;
 using todd.Data;
@@ -55,7 +56,7 @@ namespace todd.Controllers {
                 await _context.SaveChangesAsync();
             }
 
-            RefreshToken token = new RefreshToken { Token = _authUtils.GenerateRefresh(), User = user };
+            RefreshToken token = new RefreshToken { Token = _authUtils.GenerateRefresh(user), User = user };
 
             _context.RefreshTokens.Add(token);
             await _context.SaveChangesAsync();
@@ -75,23 +76,40 @@ namespace todd.Controllers {
 
         [HttpPost]
         public async Task<IActionResult> Refresh(TokenPair tokens) {
-            string user = _authUtils.GetTokenUser(tokens.access);
+            string accessUser, refreshUser;
+            try {
+                accessUser = _authUtils.GetTokenUser(tokens.access);
+                refreshUser = _authUtils.GetTokenUser(tokens.refresh);
+            } catch (Exception) {
+                return Unauthorized("Invalid token pair");
+            }
+
+            if (accessUser != refreshUser) {
+                return Unauthorized("Invalid token pair");
+            }
+
+            bool valid, expired = false;
+            try {
+                valid = _authUtils.ValidateRefresh(tokens.refresh);
+            } catch (SecurityTokenExpiredException) {
+                expired = true;
+            }
 
             RefreshToken rToken;
             try {
                 rToken = await _context.RefreshTokens.Include(rt => rt.User).FirstAsync(rt => rt.Token == tokens.refresh);
             } catch (InvalidOperationException) {
-                return BadRequest("Invalid refresh token");
+                return Unauthorized("Invalid refresh token");
             }
 
-            if (rToken.User.Id != user)
-                return BadRequest("Invalid refresh token");
+            if (rToken.User.Id != accessUser)
+                return Unauthorized("Invalid refresh token");
 
             TokenPair newTokens = new TokenPair();
             newTokens.access = _authUtils.GenerateJWT(rToken.User);
 
-            if (rToken.Generated.AddSeconds(_options.RefreshTokExpiry) <= DateTime.Now) {
-                newTokens.refresh = _authUtils.GenerateRefresh();
+            if (rToken.Generated.AddSeconds(_options.RefreshTokExpiry) <= DateTime.Now && expired) {
+                newTokens.refresh = _authUtils.GenerateRefresh(rToken.User);
 
                 _context.RefreshTokens.Add(new RefreshToken { Token = newTokens.refresh, User = rToken.User });
                 _context.RefreshTokens.Remove(rToken);
