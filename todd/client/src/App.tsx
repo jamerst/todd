@@ -13,6 +13,8 @@ import AuthRoute from "./routes/AuthRoute";
 import UnauthRoute from "./routes/UnauthRoute";
 import "./App.css";
 import Account from "./components/Account";
+import Admin from "./components/Admin";
+import AdminRoute from "./routes/AdminRoute";
 
 function App() {
   const [darkMode, setDarkMode] = useState<boolean>(
@@ -57,6 +59,12 @@ function App() {
               <Account />
             </MainLayout>
           </AuthRoute>
+
+          <AdminRoute exact path="/admin">
+            <MainLayout darkMode={darkMode} setDarkMode={setDarkMode}>
+              <Admin />
+            </MainLayout>
+          </AdminRoute>
 
           <UnauthRoute exact path="/login" component={Login} />
         </Switch>

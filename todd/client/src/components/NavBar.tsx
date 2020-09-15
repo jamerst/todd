@@ -1,5 +1,5 @@
 import React, { useState, Fragment } from 'react';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import {
   AppBar,
   Grid,
@@ -17,13 +17,16 @@ import {
 import AuthUtils from '../utils/AuthUtils';
 import { Link } from 'react-router-dom';
 
-const styles = makeStyles(() => createStyles({
+const styles = makeStyles((theme: Theme) => createStyles({
   icon: {
     color: "inherit"
   },
   link: {
     color: "inherit",
     textDecoration: "none"
+  },
+  toolbar: {
+    marginBottom: theme.spacing(2)
   }
 }))
 
@@ -56,7 +59,7 @@ const UserMenu = () => {
 
       <Menu open={Boolean(userMenu)} anchorEl={userMenu} onClose={() => setUserMenu(null)}>
         {AuthUtils.canWrite() ? (<MenuItem><Link className={classes.link} to="/account">My Account</Link></MenuItem>) : null}
-        {AuthUtils.isAdmin() ? (<MenuItem>Admin Settings</MenuItem>) : null}
+        {AuthUtils.isAdmin() ? (<MenuItem><Link className={classes.link} to="/admin">Admin Settings</Link></MenuItem>) : null}
         <MenuItem onClick={() => logout()}>Logout</MenuItem>
       </Menu>
     </Fragment>
@@ -90,7 +93,7 @@ export const NavBar = ({ darkMode, setDarkMode }: NavBarProps) => {
           </Grid>
         </Toolbar>
       </AppBar>
-      <Toolbar />
+      <Toolbar className={classes.toolbar} />
     </Fragment>
   );
 }
