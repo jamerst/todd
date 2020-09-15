@@ -1,15 +1,32 @@
-import React, { Fragment, useCallback, useEffect, useState } from "react"
-import { Box, Button, Checkbox, Collapse, Container, createStyles, FormControlLabel, Grid, IconButton, InputAdornment, makeStyles, Paper, TextField, Tooltip, Typography } from "@material-ui/core";
-import AuthUtils from "../utils/AuthUtils";
+import React, { useCallback, useEffect, useState } from "react"
+import { Box, Button, Checkbox, Collapse, Container, FormControlLabel, Grid, IconButton, Paper, Snackbar, Table, TableBody, TableCell, TableHead, TableRow, TextField, Tooltip, Typography } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import { FileCopy } from "@material-ui/icons";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 import CopyToClipboard from "react-copy-to-clipboard";
 
-const useStyles = makeStyles(() => createStyles({
+import AuthUtils from "../utils/AuthUtils";
+import { red } from "@material-ui/core/colors";
+
+const useStyles = makeStyles((theme: Theme) => createStyles({
   link: {
     color: "inherit"
+  },
+  danger: {
+    color: theme.palette.getContrastText(red[500]),
+    backgroundColor: red[500],
+    "&:hover": {
+      backgroundColor: red[700]
+    }
   }
 }));
+
+type User = {
+  id: string,
+  username: string,
+  active: boolean,
+  admin: boolean
+}
 
 const Admin = () => {
   const classes = useStyles();
@@ -24,6 +41,8 @@ const Admin = () => {
   const [createUserErr, setCreateUserErr] = useState<boolean>(false);
   const [activationId, setActivationId] = useState<string>("");
 
+  const [users, setUsers] = useState<User[]>([ ]);
+  const [userMsg, setUserMsg] = useState<string>("");
 
   const fetchPassword = useCallback(async () => {
     const response = await AuthUtils.authFetch("/api/admin/GetSitePassword");
@@ -32,24 +51,6 @@ const Admin = () => {
       setPassword(await response.json());
     }
   }, []);
-
-  const changePassword = useCallback(async () => {
-    setPasswordMsg("");
-    const response = await AuthUtils.authFetch("/api/admin/SetSitePassword", {
-      method: "POST",
-      body: JSON.stringify(password),
-      headers: { "Content-Type": "application/json" }
-    });
-
-    if (response.ok) {
-      setPasswordErr(false);
-      setPasswordMsg("Successfully change site password");
-    } else {
-      setPasswordErr(true);
-      setPasswordMsg("Failed to change site password");
-      fetchPassword();
-    }
-  }, [password, fetchPassword]);
 
   const createUser = useCallback(async () => {
     setCreateUserMsg("");
@@ -69,15 +70,62 @@ const Admin = () => {
       setUsername("");
       setAdmin(false);
       setActivationId(await response.json());
+      fetchUsers();
     } else {
       setCreateUserErr(true);
       setCreateUserMsg(`Failed to create user: ${await response.text()}`)
     }
   }, [username, admin]);
 
+  const changePassword = useCallback(async () => {
+    setPasswordMsg("");
+    const response = await AuthUtils.authFetch("/api/admin/SetSitePassword", {
+      method: "POST",
+      body: JSON.stringify(password),
+      headers: { "Content-Type": "application/json" }
+    });
+
+    if (response.ok) {
+      setPasswordErr(false);
+      setPasswordMsg("Successfully change site password");
+    } else {
+      setPasswordErr(true);
+      setPasswordMsg("Failed to change site password");
+      fetchPassword();
+    }
+  }, [password, fetchPassword]);
+
+  const fetchUsers = useCallback(async () => {
+    const response = await AuthUtils.authFetch("/api/admin/GetUsers");
+
+    if (response.ok) {
+      setUsers(await response.json());
+    }
+  }, []);
+
+  const changeAdmin = useCallback(async (id: string, admin: boolean) => {
+    const response = await AuthUtils.authFetch(`/api/admin/SetAdmin/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(admin)
+    });
+
+    if (response.ok) {
+      setUserMsg("Successfully updated admin status");
+    } else {
+      setUserMsg("Error updating admin status");
+
+      let newUsers = [...users];
+      let modified = newUsers.findIndex(u => u.id === id);
+      newUsers[modified].admin = !admin;
+      setUsers(newUsers);
+    }
+  }, [users])
+
   useEffect(() => {
     fetchPassword();
-  }, [fetchPassword]);
+    fetchUsers();
+  }, [fetchPassword, fetchUsers]);
 
   return (
     <Container>
@@ -88,21 +136,15 @@ const Admin = () => {
             <Grid item container justify="flex-start" spacing={1}>
               <Typography variant="h5">Add a New User</Typography>
               <Grid item container alignItems="center" spacing={2}>
-                <Grid item xs={12} md={6} lg={4}>
-                  <TextField variant="filled" label="Username" value={username} fullWidth required
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <FormControlLabel
-                            control={
-                              <Checkbox color="default" checked={admin} onChange={(e) => setAdmin(e.target.checked)} />
-                            }
-                            label="Admin"
-                          />
-                        </InputAdornment>
-                      )
-                    }}
+                <Grid item xs={12} md={4} lg={3}>
+                  <TextField label="Username" value={username} fullWidth required
                     onChange={(e) => setUsername(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} md={2} lg={1}>
+                  <FormControlLabel
+                    control={<Checkbox color="default" checked={admin} onChange={(e) => setAdmin(e.target.checked)} />}
+                    label="Admin"
                   />
                 </Grid>
                 <Grid item>
@@ -145,7 +187,7 @@ const Admin = () => {
               <Typography variant="h5">Change Site Password</Typography>
               <Grid item container alignItems="center" spacing={2}>
                 <Grid item xs={12} md={6} lg={4}>
-                  <TextField variant="filled" label="Password" fullWidth value={password} onChange={(e) => setPassword(e.target.value)} required />
+                  <TextField label="Password" fullWidth value={password} onChange={(e) => setPassword(e.target.value)} required />
                 </Grid>
                 <Grid item>
                   <Button variant="contained" color="primary" onClick={changePassword}>Change Password</Button>
@@ -160,6 +202,54 @@ const Admin = () => {
           </Grid>
         </Box>
       </Paper>
+
+      <Paper>
+        <Box mt={2} p={2}>
+          <Typography variant="h4">Users</Typography>
+          <Table>
+            <TableHead>
+              <TableCell>Username</TableCell>
+              <TableCell>Active</TableCell>
+              <TableCell>Admin</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableHead>
+            <TableBody>
+              {users.map(user => (
+                <TableRow key={`user-${user.id}`}>
+                  <TableCell>{user.username}</TableCell>
+                  <TableCell><Checkbox checked={user.active} /></TableCell>
+                  <TableCell>
+                    <Checkbox
+                      checked={user.admin}
+                      color="secondary"
+                      onChange={(e) => {
+                        let newUsers = [...users];
+                        let modified = newUsers.findIndex(u => u.id === user.id);
+                        newUsers[modified].admin = e.target.checked;
+
+                        setUsers(newUsers);
+
+                        changeAdmin(user.id, e.target.checked);
+                      }}/>
+                  </TableCell>
+                  <TableCell>
+                    <Grid container spacing={2}>
+                      <Grid item>
+                        <Button variant="contained" color="secondary">Reset Password</Button>
+                      </Grid>
+                      <Grid item>
+                        <Button variant="contained" className={classes.danger}>Delete User</Button>
+                      </Grid>
+                    </Grid>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Box>
+      </Paper>
+
+      <Snackbar open={userMsg !== ""} autoHideDuration={5000} onClose={() => setUserMsg("")} message={userMsg} />
     </Container>
   );
 }

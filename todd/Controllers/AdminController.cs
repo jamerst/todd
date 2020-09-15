@@ -84,6 +84,39 @@ namespace todd.Controllers {
             return new JsonResult(activation.Id);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetUsers() {
+            List<UserResult> users = await _context.Users
+                .OrderBy(u => u.Username)
+                .Select(u => new UserResult {
+                    Id = u.Id,
+                    Username = u.Username,
+                    Admin = u.Admin,
+                    Active = u.Active
+                })
+                .ToListAsync();
+
+            return new JsonResult(users);
+        }
+
+        [HttpPost("{id}")]
+        public async Task<IActionResult> SetAdmin(string id, [FromBody] bool admin) {
+            if (id == User.FindFirstValue(ClaimTypes.Name))
+                return BadRequest("Cannot change your own admin status");
+
+            User user;
+            try {
+                user = await _context.Users.FirstAsync(u => u.Id == id);
+            } catch (InvalidOperationException) {
+                return NotFound();
+            }
+
+            user.Admin = admin;
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
         public class NewUser {
             public string Username { get; set; }
             public bool Admin { get; set; }
