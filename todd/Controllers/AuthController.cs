@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 
 using todd.Configuration;
 using todd.Data;
+using todd.DTO;
 using todd.Models;
 using todd.Utils;
 
@@ -31,7 +32,7 @@ namespace todd.Controllers {
         public async Task<IActionResult> Login(LoginDetails login) {
             User user;
             try {
-                user = await _context.Users.FirstAsync(u => u.Username == login.username);
+                user = await _context.Users.FirstAsync(u => u.Username == login.username && u.Active);
             } catch (InvalidOperationException) {
                 return Unauthorized();
             }
@@ -105,6 +106,9 @@ namespace todd.Controllers {
             if (rToken.User.Id != accessUser)
                 return Unauthorized("Invalid refresh token");
 
+            if (!rToken.User.Active)
+                return Unauthorized("User disabled");
+
             TokenPair newTokens = new TokenPair();
             newTokens.access = _authUtils.GenerateJWT(rToken.User);
 
@@ -130,33 +134,6 @@ namespace todd.Controllers {
             }
 
             return Ok();
-        }
-
-        [HttpPost]
-        [Authorize(Roles = "admin")]
-        public async Task Create(string username, string password, string email, bool admin) {
-            byte[] salt = _authUtils.GenerateSalt();
-            string hash = _authUtils.Hash(password, salt, _options.HashIter, _options.HashSize);
-
-            User user = new User {
-                Username = username,
-                Email = email,
-                Password = hash,
-                Salt = Convert.ToBase64String(salt),
-                HashIterations = _options.HashIter,
-                HashSize = _options.HashSize,
-                SaltSize = _options.SaltSize,
-                Admin = admin
-            };
-
-            _context.Users.Add(user);
-
-            await _context.SaveChangesAsync();
-        }
-
-        public class TokenPair {
-            public string access { get; set; }
-            public string refresh { get; set; }
         }
 
         public class LoginDetails {

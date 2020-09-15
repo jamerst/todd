@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using todd.Data;
@@ -9,9 +10,10 @@ using todd.Data;
 namespace todd.Migrations
 {
     [DbContext(typeof(ToddContext))]
-    partial class ToddContextModelSnapshot : ModelSnapshot
+    [Migration("20200915125423_UserActive")]
+    partial class UserActive
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -186,22 +188,6 @@ namespace todd.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("todd.Models.UserActivation", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserActivations");
-                });
-
             modelBuilder.Entity("todd.Models.Image", b =>
                 {
                     b.HasOne("todd.Models.Item", "Item")
@@ -236,13 +222,6 @@ namespace todd.Migrations
                 });
 
             modelBuilder.Entity("todd.Models.RefreshToken", b =>
-                {
-                    b.HasOne("todd.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("todd.Models.UserActivation", b =>
                 {
                     b.HasOne("todd.Models.User", "User")
                         .WithMany()

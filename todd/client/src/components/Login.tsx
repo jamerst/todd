@@ -33,6 +33,7 @@ function Login() {
 
   const loginRO = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginROErr("");
 
     const result = await AuthUtils.loginReadonly(passwordRO);
 
@@ -53,6 +54,7 @@ function Login() {
 
   const login = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginErr("");
 
     const result = await AuthUtils.login(username, password);
 

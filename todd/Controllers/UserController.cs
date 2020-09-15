@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 
 using todd.Configuration;
 using todd.Data;
+using todd.DTO;
 using todd.Models;
 using todd.Utils;
 
@@ -55,10 +56,56 @@ namespace todd.Controllers {
 
             return Ok();
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetActivationUsername(string id) {
+            UserActivation activation;
+            try {
+                activation = await _context.UserActivations.Include(ua => ua.User).FirstAsync(ua => ua.Id == id);
+            } catch (InvalidOperationException) {
+                return NotFound("Activation ID not found");
+            }
+
+            return new JsonResult(activation.User.Username);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Activate(ActivationDetails details) {
+            UserActivation activation;
+            try {
+                activation = await _context.UserActivations.Include(ua => ua.User).FirstAsync(ua => ua.Id == details.ActivationId);
+            } catch (InvalidOperationException) {
+                return NotFound("Activation ID not found");
+            }
+
+            byte[] salt = _authUtils.GenerateSalt();
+            string newHash = _authUtils.Hash(details.Password, salt, _options.HashIter, _options.HashSize);
+
+            activation.User.Salt = Convert.ToBase64String(salt);
+            activation.User.Password = newHash;
+            activation.User.HashIterations = _options.HashIter;
+            activation.User.HashSize = _options.HashSize;
+            activation.User.SaltSize = _options.SaltSize;
+            activation.User.Active = true;
+
+            RefreshToken token = new RefreshToken { Token = _authUtils.GenerateRefresh(activation.User), User = activation.User };
+
+            _context.RefreshTokens.Add(token);
+
+            _context.UserActivations.Remove(activation);
+            await _context.SaveChangesAsync();
+
+            return new JsonResult(new TokenPair { access = _authUtils.GenerateJWT(activation.User), refresh = token.Token });
+        }
     }
 
     public class Passwords {
         public string oldPass { get; set; }
         public string newPass { get; set; }
+    }
+
+    public class ActivationDetails {
+        public string ActivationId { get; set; }
+        public string Password { get; set; }
     }
 }
