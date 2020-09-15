@@ -95,7 +95,7 @@ const Admin = () => {
                         <InputAdornment position="end">
                           <FormControlLabel
                             control={
-                              <Checkbox color="default" value={admin} onChange={(e) => setAdmin(e.target.checked)} />
+                              <Checkbox color="default" checked={admin} onChange={(e) => setAdmin(e.target.checked)} />
                             }
                             label="Admin"
                           />
