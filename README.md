@@ -5,7 +5,7 @@
 <h1 align="center">Tech Organiser and Drama Database (TODD)</h1>
 <h3 align="center">A custom inventory management system for Warwick Tech Crew</h3>
 
-Todd is the inventory management system for Warwick Tech Crew and the Drama Collective at the University of Warwick. It allows drama societies to easily search and view the items available for productions, without having to search for items physically. It features a read-only mode, which allows viewing of items using a shared password, and a regular account-based system for users who can create and modify items.
+Todd is an inventory management system for Warwick Tech Crew and the Drama Collective at the University of Warwick. It allows drama societies to easily search and view the items available for productions, without having to search for items physically. It features a read-only mode, which allows viewing of items using a shared password, and a regular account-based system for users who can create and modify items.
 
 ## About
 Todd is a web-application written using the ASP.NET Core back-end framework with a React.js front-end, utilising TypeScript and material-ui. It is named after the one, the only Todd Olive (Tech Crew Boom Officer, 2017-2020).
