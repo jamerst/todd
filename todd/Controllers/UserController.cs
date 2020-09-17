@@ -97,6 +97,49 @@ namespace todd.Controllers {
 
             return new JsonResult(new TokenPair { access = _authUtils.GenerateJWT(activation.User), refresh = token.Token });
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetResetStatus(string id) {
+            PasswordReset reset;
+            try {
+                reset = await _context.PasswordResets.FirstAsync(r => r.Id == id);
+            } catch (InvalidOperationException) {
+                return NotFound();
+            }
+
+            if (reset.Generated.AddSeconds(_options.ResetExpiry) <= DateTime.Now) {
+                _context.PasswordResets.Remove(reset);
+                await _context.SaveChangesAsync();
+                return Forbid();
+            }
+
+            return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetDetails details) {
+            PasswordReset reset;
+            try {
+                reset = await _context.PasswordResets.Include(ua => ua.User).FirstAsync(ua => ua.Id == details.ResetId);
+            } catch (InvalidOperationException) {
+                return NotFound("Reset ID not found");
+            }
+
+            byte[] salt = _authUtils.GenerateSalt();
+            string newHash = _authUtils.Hash(details.Password, salt, _options.HashIter, _options.HashSize);
+
+            reset.User.Salt = Convert.ToBase64String(salt);
+            reset.User.Password = newHash;
+            reset.User.HashIterations = _options.HashIter;
+            reset.User.HashSize = _options.HashSize;
+            reset.User.SaltSize = _options.SaltSize;
+            reset.User.Active = true;
+
+            _context.PasswordResets.Remove(reset);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
     }
 
     public class Passwords {
@@ -106,6 +149,11 @@ namespace todd.Controllers {
 
     public class ActivationDetails {
         public string ActivationId { get; set; }
+        public string Password { get; set; }
+    }
+
+    public class ResetDetails {
+        public string ResetId { get; set; }
         public string Password { get; set; }
     }
 }

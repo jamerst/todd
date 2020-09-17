@@ -1,21 +1,22 @@
-import React, { useState } from "react";
-import { Switch, BrowserRouter } from "react-router-dom";
-import { CssBaseline } from "@material-ui/core";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
-import { teal, orange } from "@material-ui/core/colors";
+import React, { useState } from "react"
+import { Switch, BrowserRouter, Route } from "react-router-dom"
+import { CssBaseline } from "@material-ui/core"
+import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles"
+import { teal, orange } from "@material-ui/core/colors"
 
-import Home from "./components/Home";
-import Item from "./components/Item";
-import Login from "./components/Login";
+import Account from "./components/Account"
+import Activate from "./components/Activate"
+import Admin from "./components/Admin"
+import AdminRoute from "./routes/AdminRoute"
+import Home from "./components/Home"
+import Item from "./components/Item"
+import Login from "./components/Login"
 import MainLayout from "./components/MainLayout"
+import ResetPassword from "./components/ResetPassword"
 
-import AuthRoute from "./routes/AuthRoute";
-import UnauthRoute from "./routes/UnauthRoute";
-import "./App.css";
-import Account from "./components/Account";
-import Admin from "./components/Admin";
-import AdminRoute from "./routes/AdminRoute";
-import Activate from "./components/Activate";
+import AuthRoute from "./routes/AuthRoute"
+import UnauthRoute from "./routes/UnauthRoute"
+import "./App.css"
 
 function App() {
   const [darkMode, setDarkMode] = useState<boolean>(
@@ -70,6 +71,8 @@ function App() {
           <UnauthRoute exact path="/login" component={Login} />
 
           <UnauthRoute exact path="/activate/:id" component={Activate} />
+
+          <Route exact path="/reset/:id" component={ResetPassword} />
         </Switch>
       </BrowserRouter>
     </ThemeProvider>

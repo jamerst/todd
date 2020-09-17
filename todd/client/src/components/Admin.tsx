@@ -25,7 +25,8 @@ type User = {
   id: string,
   username: string,
   active: boolean,
-  admin: boolean
+  admin: boolean,
+  passwordReset: string
 }
 
 const Admin = () => {
@@ -41,7 +42,7 @@ const Admin = () => {
   const [createUserErr, setCreateUserErr] = useState<boolean>(false);
   const [activationId, setActivationId] = useState<string>("");
 
-  const [users, setUsers] = useState<User[]>([ ]);
+  const [users, setUsers] = useState<User[]>([]);
   const [userMsg, setUserMsg] = useState<string>("");
 
   const fetchPassword = useCallback(async () => {
@@ -121,6 +122,22 @@ const Admin = () => {
       setUsers(newUsers);
     }
   }, [users])
+
+  const resetPassword = useCallback(async (id: string) => {
+    const response = await AuthUtils.authFetch(`/api/admin/ResetPassword/${id}`, {
+      method: "POST"
+    });
+
+    if (response.ok) {
+      let newUsers = [...users];
+      let modified = newUsers.findIndex(u => u.id === id);
+      newUsers[modified].passwordReset = await response.json();
+      newUsers[modified].active = false;
+      setUsers(newUsers);
+    } else {
+      setUserMsg("Error resetting user password");
+    }
+  }, [users]);
 
   useEffect(() => {
     fetchPassword();
@@ -216,7 +233,7 @@ const Admin = () => {
             <TableBody>
               {users.map(user => (
                 <TableRow key={`user-${user.id}`}>
-                  <TableCell>{user.username}</TableCell>
+                  <TableCell component="th" scope="row">{user.username}</TableCell>
                   <TableCell><Checkbox checked={user.active} /></TableCell>
                   <TableCell>
                     <Checkbox
@@ -230,16 +247,28 @@ const Admin = () => {
                         setUsers(newUsers);
 
                         changeAdmin(user.id, e.target.checked);
-                      }}/>
+                      }} />
                   </TableCell>
                   <TableCell>
-                    <Grid container spacing={2}>
-                      <Grid item>
-                        <Button variant="contained" color="secondary">Reset Password</Button>
+                    <Grid container direction="column" spacing={2}>
+                      <Grid item container spacing={1}>
+                        <Grid item>
+                          <Button variant="contained" color="secondary" onClick={() => resetPassword(user.id)}>Reset Password</Button>
+                        </Grid>
+                        <Grid item>
+                          <Button variant="contained" className={classes.danger}>Delete User</Button>
+                        </Grid>
                       </Grid>
-                      <Grid item>
-                        <Button variant="contained" className={classes.danger}>Delete User</Button>
-                      </Grid>
+
+                      {user.passwordReset ?
+                        <Grid item>
+                          <strong>
+                            Reset Link: <a href={`/reset/${user.passwordReset}`} className={classes.link}>
+                              {window.location.origin}/reset/{user.passwordReset}
+                            </a>
+                          </strong>
+                        </Grid> : null
+                      }
                     </Grid>
                   </TableCell>
                 </TableRow>

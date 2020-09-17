@@ -7,5 +7,6 @@ namespace todd.Configuration {
         public int SaltSize { get; set; }
         public int HashSize { get; set; }
         public int HashIter { get; set; }
+        public int ResetExpiry { get; set; }
     }
 }

@@ -34,5 +34,6 @@ namespace todd.Data {
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Setting> Settings { get; set; }
         public DbSet<UserActivation> UserActivations { get; set; }
+        public DbSet<PasswordReset> PasswordResets { get; set; }
     }
 }

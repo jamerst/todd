@@ -117,6 +117,35 @@ namespace todd.Controllers {
             return Ok();
         }
 
+        [HttpPost("{id}")]
+        public async Task<IActionResult> ResetPassword(string id) {
+            User user;
+            try {
+                user = await _context.Users.FirstAsync(u => u.Id == id);
+            } catch (InvalidOperationException) {
+                return NotFound();
+            }
+
+            user.Password = null;
+            user.Salt = null;
+            user.HashIterations = 0;
+            user.HashSize = 0;
+            user.SaltSize = 0;
+            user.Active = false;
+
+            PasswordReset current = await _context.PasswordResets.FirstOrDefaultAsync(r => r.User == user);
+            if (current != null) {
+                _context.PasswordResets.Remove(current);
+            }
+
+            PasswordReset reset = new PasswordReset { User = user, Generated = DateTime.Now };
+            _context.PasswordResets.Add(reset);
+
+            await _context.SaveChangesAsync();
+
+            return new JsonResult(reset.Id);
+        }
+
         public class NewUser {
             public string Username { get; set; }
             public bool Admin { get; set; }
