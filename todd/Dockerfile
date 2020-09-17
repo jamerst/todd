@@ -19,6 +19,5 @@ RUN apt-get update
 RUN curl -sL https://deb.nodesource.com/setup_14.x |  bash -
 RUN apt-get install -y nodejs unzip libfreetype6 libfontconfig1
 RUN npm i -g svgo --unsafe-perm=true --allow-root
-COPY init-data/todd-data /todd-data
 COPY --from=build-env /app/out .
 ENTRYPOINT ["dotnet", "todd.dll"]
