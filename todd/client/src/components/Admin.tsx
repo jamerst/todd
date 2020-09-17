@@ -7,6 +7,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 
 import AuthUtils from "../utils/AuthUtils";
 import { red } from "@material-ui/core/colors";
+import ConfirmationDialog from "./ConfirmationDialog";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
   link: {
@@ -44,6 +45,7 @@ const Admin = () => {
 
   const [users, setUsers] = useState<User[]>([]);
   const [userMsg, setUserMsg] = useState<string>("");
+  const [deleteId, setDeleteId] = useState<string>("");
 
   const fetchPassword = useCallback(async () => {
     const response = await AuthUtils.authFetch("/api/admin/GetSitePassword");
@@ -134,10 +136,24 @@ const Admin = () => {
       newUsers[modified].passwordReset = await response.json();
       newUsers[modified].active = false;
       setUsers(newUsers);
+      setUserMsg("Successfully created password reset");
     } else {
       setUserMsg("Error resetting user password");
     }
   }, [users]);
+
+  const deleteUser = useCallback(async () => {
+    const response = await AuthUtils.authFetch(`/api/admin/DeleteUser/${deleteId}`, {
+      method: "POST"
+    });
+
+    if (response.ok) {
+      setUserMsg("Successfully deleted user");
+      fetchUsers();
+    } else {
+      setUserMsg("Error deleting user");
+    }
+  }, [deleteId])
 
   useEffect(() => {
     fetchPassword();
@@ -234,11 +250,11 @@ const Admin = () => {
               {users.map(user => (
                 <TableRow key={`user-${user.id}`}>
                   <TableCell component="th" scope="row">{user.username}</TableCell>
-                  <TableCell><Checkbox checked={user.active} /></TableCell>
+                  <TableCell><Checkbox checked={user.active} color="primary" /></TableCell>
                   <TableCell>
                     <Checkbox
                       checked={user.admin}
-                      color="secondary"
+                      color="primary"
                       onChange={(e) => {
                         let newUsers = [...users];
                         let modified = newUsers.findIndex(u => u.id === user.id);
@@ -256,7 +272,7 @@ const Admin = () => {
                           <Button variant="contained" color="secondary" onClick={() => resetPassword(user.id)}>Reset Password</Button>
                         </Grid>
                         <Grid item>
-                          <Button variant="contained" className={classes.danger}>Delete User</Button>
+                          <Button variant="contained" className={classes.danger} onClick={() => setDeleteId(user.id)}>Delete User</Button>
                         </Grid>
                       </Grid>
 
@@ -279,6 +295,14 @@ const Admin = () => {
       </Paper>
 
       <Snackbar open={userMsg !== ""} autoHideDuration={5000} onClose={() => setUserMsg("")} message={userMsg} />
+      <ConfirmationDialog
+        open={deleteId !== ""}
+        onConfirm={() => { deleteUser(); setDeleteId("") }}
+        onReject={() => setDeleteId("")}
+        title="Delete User?"
+        description="Are you sure you want to delete this user? This action cannot be undone."
+        primaryLabel="Delete"
+      />
     </Container>
   );
 }

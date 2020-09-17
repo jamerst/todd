@@ -3,7 +3,7 @@ import { Box, Button, Container, Collapse, Grid, Card, CardContent, TextField, T
 import { Alert } from "@material-ui/lab"
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
 import logo from "../logo.svg";
-import { useHistory, useParams } from "react-router";
+import { useHistory, useLocation, useParams } from "react-router";
 import AuthUtils from "../utils/AuthUtils";
 import { Link } from "react-router-dom";
 import { Error } from "@material-ui/icons";
@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 const ResetPassword = () => {
   const classes = useStyles();
-  const { id } = useParams();
+  const { token } = useParams();
   const history = useHistory();
 
   const [resetValidMsg, setResetValidMsg] = useState<string>("");
@@ -34,7 +34,7 @@ const ResetPassword = () => {
   const [resetErr, setResetErr] = useState<string>("");
 
   const resetStatus = useCallback(async () => {
-    const response = await fetch(`/api/user/GetResetStatus/${id}`);
+    const response = await fetch(`/api/user/GetResetStatus/${token}`);
 
     if (response.ok) {
       setResetValidMsg("good");
@@ -43,7 +43,7 @@ const ResetPassword = () => {
     } else if (response.status === 403) {
       setResetValidMsg("Expired");
     }
-  }, [id]);
+  }, [token]);
 
   const resetPassword = useCallback(async () => {
     setResetErr("");
@@ -53,11 +53,11 @@ const ResetPassword = () => {
       return;
     }
 
-    const response = await AuthUtils.authFetch("/api/user/ResetPassword", {
+    const response = await fetch("/api/user/ResetPassword", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        resetId: id,
+        token: token,
         password: password
       })
     });
@@ -68,7 +68,7 @@ const ResetPassword = () => {
     } else {
       setResetErr("An error occurred when trying to change your password");
     }
-  }, [id, password, confirmPass])
+  }, [token, password, confirmPass])
 
   useEffect(() => {
     resetStatus();

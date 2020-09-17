@@ -70,9 +70,9 @@ function App() {
 
           <UnauthRoute exact path="/login" component={Login} />
 
-          <UnauthRoute exact path="/activate/:id" component={Activate} />
+          <UnauthRoute exact path="/activate/:token" component={Activate} />
 
-          <Route exact path="/reset/:id" component={ResetPassword} />
+          <Route exact path="/reset/:token" component={ResetPassword} />
         </Switch>
       </BrowserRouter>
     </ThemeProvider>

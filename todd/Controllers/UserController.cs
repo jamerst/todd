@@ -57,58 +57,60 @@ namespace todd.Controllers {
             return Ok();
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetActivationUsername(string id) {
-            UserActivation activation;
+        [HttpGet("{token}")]
+        public async Task<IActionResult> GetActivationUsername(string token) {
+            User user;
             try {
-                activation = await _context.UserActivations.Include(ua => ua.User).FirstAsync(ua => ua.Id == id);
+                user = await _context.Users.FirstAsync(u => u.Activation == token);
             } catch (InvalidOperationException) {
-                return NotFound("Activation ID not found");
+                return NotFound("Activation token not found");
             }
 
-            return new JsonResult(activation.User.Username);
+            return new JsonResult(user.Username);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Activate(ActivationDetails details) {
-            UserActivation activation;
+        public async Task<IActionResult> Activate(PasswordDetails details) {
+            User user;
             try {
-                activation = await _context.UserActivations.Include(ua => ua.User).FirstAsync(ua => ua.Id == details.ActivationId);
+                user = await _context.Users.FirstAsync(u => u.Activation == details.Token);
             } catch (InvalidOperationException) {
-                return NotFound("Activation ID not found");
+                return NotFound("Activation token not found");
             }
 
             byte[] salt = _authUtils.GenerateSalt();
             string newHash = _authUtils.Hash(details.Password, salt, _options.HashIter, _options.HashSize);
 
-            activation.User.Salt = Convert.ToBase64String(salt);
-            activation.User.Password = newHash;
-            activation.User.HashIterations = _options.HashIter;
-            activation.User.HashSize = _options.HashSize;
-            activation.User.SaltSize = _options.SaltSize;
-            activation.User.Active = true;
+            user.Salt = Convert.ToBase64String(salt);
+            user.Password = newHash;
+            user.HashIterations = _options.HashIter;
+            user.HashSize = _options.HashSize;
+            user.SaltSize = _options.SaltSize;
+            user.Active = true;
+            user.Activation = null;
 
-            RefreshToken token = new RefreshToken { Token = _authUtils.GenerateRefresh(activation.User), User = activation.User };
+            RefreshToken token = new RefreshToken { Token = _authUtils.GenerateRefresh(user), User = user };
 
             _context.RefreshTokens.Add(token);
 
-            _context.UserActivations.Remove(activation);
             await _context.SaveChangesAsync();
 
-            return new JsonResult(new TokenPair { access = _authUtils.GenerateJWT(activation.User), refresh = token.Token });
+            return new JsonResult(new TokenPair { access = _authUtils.GenerateJWT(user), refresh = token.Token });
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetResetStatus(string id) {
-            PasswordReset reset;
+        [HttpGet("{token}")]
+        public async Task<IActionResult> GetResetStatus(string token) {
+            if (String.IsNullOrEmpty(token)) return NotFound("Reset token not found");
+
+            User user;
             try {
-                reset = await _context.PasswordResets.FirstAsync(r => r.Id == id);
+                user = await _context.Users.FirstAsync(u => u.Reset == token && u.Active == false);
             } catch (InvalidOperationException) {
-                return NotFound();
+                return NotFound("Reset token not found");
             }
 
-            if (reset.Generated.AddSeconds(_options.ResetExpiry) <= DateTime.Now) {
-                _context.PasswordResets.Remove(reset);
+            if (user.ResetGenerated.AddSeconds(_options.ResetExpiry) <= DateTime.Now) {
+                user.Reset = null;
                 await _context.SaveChangesAsync();
                 return Forbid();
             }
@@ -117,25 +119,27 @@ namespace todd.Controllers {
         }
 
         [HttpPost]
-        public async Task<IActionResult> ResetPassword(ResetDetails details) {
-            PasswordReset reset;
+        public async Task<IActionResult> ResetPassword(PasswordDetails details) {
+            if (String.IsNullOrEmpty(details.Token)) return NotFound("Reset token not found");
+
+            User user;
             try {
-                reset = await _context.PasswordResets.Include(ua => ua.User).FirstAsync(ua => ua.Id == details.ResetId);
+                user = await _context.Users.FirstAsync(u => u.Reset == details.Token && u.Active == false);
             } catch (InvalidOperationException) {
-                return NotFound("Reset ID not found");
+                return NotFound("Reset token not found");
             }
 
             byte[] salt = _authUtils.GenerateSalt();
             string newHash = _authUtils.Hash(details.Password, salt, _options.HashIter, _options.HashSize);
 
-            reset.User.Salt = Convert.ToBase64String(salt);
-            reset.User.Password = newHash;
-            reset.User.HashIterations = _options.HashIter;
-            reset.User.HashSize = _options.HashSize;
-            reset.User.SaltSize = _options.SaltSize;
-            reset.User.Active = true;
+            user.Salt = Convert.ToBase64String(salt);
+            user.Password = newHash;
+            user.HashIterations = _options.HashIter;
+            user.HashSize = _options.HashSize;
+            user.SaltSize = _options.SaltSize;
+            user.Active = true;
+            user.Reset = null;
 
-            _context.PasswordResets.Remove(reset);
             await _context.SaveChangesAsync();
 
             return Ok();
@@ -147,13 +151,8 @@ namespace todd.Controllers {
         public string newPass { get; set; }
     }
 
-    public class ActivationDetails {
-        public string ActivationId { get; set; }
-        public string Password { get; set; }
-    }
-
-    public class ResetDetails {
-        public string ResetId { get; set; }
+    public class PasswordDetails {
+        public string Token { get; set; }
         public string Password { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace todd.Models {
     public class User {
@@ -12,5 +14,11 @@ namespace todd.Models {
         public int SaltSize { get; set; }
         public bool Admin { get; set; }
         public bool Active { get; set; }
+        public List<RefreshToken> RefreshTokens { get; set; }
+        public List<Item> Items { get; set; }
+        public List<Record> Records { get; set; }
+        public string Reset { get; set; }
+        public DateTime ResetGenerated { get; set; }
+        public string Activation { get; set; }
     }
 }

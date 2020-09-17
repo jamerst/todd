@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using todd.Data;
@@ -9,9 +10,10 @@ using todd.Data;
 namespace todd.Migrations
 {
     [DbContext(typeof(ToddContext))]
-    partial class ToddContextModelSnapshot : ModelSnapshot
+    [Migration("20200917133940_CascadeTokens")]
+    partial class CascadeTokens
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,6 +91,25 @@ namespace todd.Migrations
                     b.ToTable("Locations");
                 });
 
+            modelBuilder.Entity("todd.Models.PasswordReset", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Generated")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PasswordResets");
+                });
+
             modelBuilder.Entity("todd.Models.Record", b =>
                 {
                     b.Property<string>("Id")
@@ -158,9 +179,6 @@ namespace todd.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("text");
 
-                    b.Property<string>("Activation")
-                        .HasColumnType("text");
-
                     b.Property<bool>("Active")
                         .HasColumnType("boolean");
 
@@ -176,12 +194,6 @@ namespace todd.Migrations
                     b.Property<string>("Password")
                         .HasColumnType("text");
 
-                    b.Property<string>("Reset")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ResetGenerated")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<string>("Salt")
                         .HasColumnType("text");
 
@@ -196,6 +208,22 @@ namespace todd.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("todd.Models.UserActivation", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserActivations");
+                });
+
             modelBuilder.Entity("todd.Models.Image", b =>
                 {
                     b.HasOne("todd.Models.Item", "Item")
@@ -208,12 +236,19 @@ namespace todd.Migrations
             modelBuilder.Entity("todd.Models.Item", b =>
                 {
                     b.HasOne("todd.Models.User", "Creator")
-                        .WithMany("Items")
+                        .WithMany()
                         .HasForeignKey("CreatorId");
 
                     b.HasOne("todd.Models.Location", "Location")
                         .WithMany()
                         .HasForeignKey("LocationId");
+                });
+
+            modelBuilder.Entity("todd.Models.PasswordReset", b =>
+                {
+                    b.HasOne("todd.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("todd.Models.Record", b =>
@@ -225,7 +260,7 @@ namespace todd.Migrations
                         .IsRequired();
 
                     b.HasOne("todd.Models.User", "User")
-                        .WithMany("Records")
+                        .WithMany()
                         .HasForeignKey("UserId");
                 });
 
@@ -236,6 +271,13 @@ namespace todd.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("todd.Models.UserActivation", b =>
+                {
+                    b.HasOne("todd.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
                 });
 #pragma warning restore 612, 618
         }

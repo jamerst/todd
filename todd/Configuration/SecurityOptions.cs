@@ -8,5 +8,7 @@ namespace todd.Configuration {
         public int HashSize { get; set; }
         public int HashIter { get; set; }
         public int ResetExpiry { get; set; }
+        public int ResetSize { get; set; }
+        public int ActivationSize { get; set; }
     }
 }

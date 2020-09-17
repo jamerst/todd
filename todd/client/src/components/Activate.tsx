@@ -5,6 +5,7 @@ import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
 import logo from "../logo.svg";
 import { useHistory, useParams } from "react-router";
 import AuthUtils from "../utils/AuthUtils";
+import { TokenClass } from "typescript";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
   grid: {
@@ -22,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 const Activate = () => {
   const classes = useStyles();
-  const { id } = useParams();
+  const { token } = useParams();
   const history = useHistory();
 
   const [username, setUsername] = useState<string>("");
@@ -31,14 +32,14 @@ const Activate = () => {
   const [activateErr, setActivateErr] = useState<string>("");
 
   const getUsername = useCallback(async () => {
-    const response = await AuthUtils.authFetch(`/api/user/GetActivationUsername/${id}`);
+    const response = await fetch(`/api/user/GetActivationUsername/${token}`);
 
     if (response.ok) {
       setUsername(await response.json());
     } else {
       history.push("/login");
     }
-  }, [id]);
+  }, [token]);
 
   const activateAccount = useCallback(async () => {
     setActivateErr("");
@@ -48,11 +49,11 @@ const Activate = () => {
       return;
     }
 
-    const response = await AuthUtils.authFetch("/api/user/Activate", {
+    const response = await fetch("/api/user/Activate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        activationId: id,
+        token: token,
         password: password
       })
     });
@@ -63,13 +64,13 @@ const Activate = () => {
     } else {
       setActivateErr("An error occurred when trying to activate your account");
     }
-  }, [id, password, confirmPass])
+  }, [token, password, confirmPass])
 
   useEffect(() => {
     getUsername()
   }, [getUsername]);
 
-  if (username === ""){
+  if (username === "") {
     return (
       <Grid container justify="center" alignItems="center" className={classes.grid}>
         <CircularProgress />
@@ -81,7 +82,7 @@ const Activate = () => {
     <Container>
       <Grid container justify="center" alignContent="center" spacing={5} className={classes.grid}>
         <Grid container item xs={6} md={3} direction="column" alignItems="center">
-          <img src={logo} alt="Logo" className={classes.logo}/>
+          <img src={logo} alt="Logo" className={classes.logo} />
         </Grid>
         <Grid container item xs={12} direction="column" alignItems="center">
           <Typography variant="h1" align="center">TODD</Typography>
@@ -95,7 +96,7 @@ const Activate = () => {
                   <Typography variant="h4">Account Registration</Typography>
                   <Typography variant="body1">Please choose a password to complete your account registration.</Typography>
                 </Box>
-                <form onSubmit={(e) => {e.preventDefault(); activateAccount()}}>
+                <form onSubmit={(e) => { e.preventDefault(); activateAccount() }}>
                   <Grid container direction="column" justify="center" alignItems="center" spacing={2}>
                     <Grid container item xs={12} md={6}>
                       <TextField label="Username" value={username} disabled required fullWidth />

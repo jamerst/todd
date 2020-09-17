@@ -4,7 +4,7 @@ import { BrokenImage, NavigateNext, NavigateBefore, Add, Clear } from "@material
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles"
 import { grey } from "@material-ui/core/colors"
 
-import RemoveImageAlertDialog from "./RemoveImageAlertDialog"
+import ConfirmationDialog from "../ConfirmationDialog"
 import AuthUtils from "../../utils/AuthUtils"
 
 type ItemImageGalleryProps = {
@@ -214,10 +214,13 @@ const ItemImageGallery = ({ imageIds, setImageIds, itemId }: ItemImageGalleryPro
         }
       </GridList>
 
-      <RemoveImageAlertDialog
+      <ConfirmationDialog
         open={deleteIndex !== -1}
         onConfirm={() => { deleteImage(deleteIndex); setDeleteIndex(-1); }}
         onReject={() => setDeleteIndex(-1)}
+        title="Delete Item?"
+        description="Are you sure you want to delete this image? This action cannot be undone."
+        primaryLabel="Delete"
       />
     </Paper>
   );

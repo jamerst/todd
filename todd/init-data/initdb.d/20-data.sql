@@ -1,0 +1,2 @@
+INSERT INTO "Users" VALUES('b19f0328-c528-47e4-9e93-3440883a0497', 'admin', 'wcZTW1iu4pqIM95ZJybvsJR/nmawMfcenKmyhm2vgW8=', '+sWM8f/TJJHymTxBC/lv1A==', 256, 1000, 128, TRUE, TRUE, NULL, '0001-01-01 00:00:00', NULL);
+INSERT INTO "Settings" VALUES('SitePassword', 'changeme');

@@ -15,7 +15,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
   },
   footerIcon: {
-    fontSize: theme.typography.h2.fontSize
+    fontSize: theme.typography.h2.fontSize,
+    "&:hover": {
+      filter: "drop-shadow(0px 3px 5px rgba(0,0,0,0.7)); drop-shadow(0px 5px 8px rgba(0,0,0,0.64)); drop-shadow(0px 1px 14px rgba(0,0,0,0.62))",
+    }
   }
 }))
 
@@ -39,8 +42,16 @@ export const Footer = () => {
 
             <Grid item container direction="row" justify="center" alignItems="center" spacing={2} xs={12} md={2}>
               <Grid item><DC className={classes.footerIcon} /></Grid>
-              <Grid item><MTW className={classes.footerIcon} /></Grid>
-              <Grid item><TechCrew className={classes.footerIcon} /></Grid>
+              <Grid item>
+                <a target="_blank" rel="noopener noreferrer" href="https://www.musictheatrewarwick.com/">
+                  <MTW className={classes.footerIcon} />
+                </a>
+              </Grid>
+              <Grid item>
+                <a target="_blank" rel="noopener noreferrer" href="http://www.warwicktechcrew.co.uk/">
+                  <TechCrew className={classes.footerIcon} />
+                </a>
+              </Grid>
             </Grid>
 
             <Grid item xs={12} md={5} />

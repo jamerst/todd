@@ -2,19 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 
 using todd.Configuration;
 using todd.Data;
 using todd.DTO;
 using todd.Models;
-using todd.Services;
 using todd.Utils;
 
 namespace todd.Controllers {
@@ -66,27 +66,29 @@ namespace todd.Controllers {
             if (await _context.Users.Where(u => u.Username == newUser.Username).CountAsync() > 0)
                 return BadRequest("Username already in use");
 
+            byte[] random = new byte[_options.ActivationSize / 8];
+            using (var RNG = RandomNumberGenerator.Create()) {
+                RNG.GetBytes(random);
+            }
+
             User user = new User {
                 Username = newUser.Username,
                 Admin = newUser.Admin,
-                Active = false
-            };
-
-            UserActivation activation = new UserActivation {
-                User = user
+                Active = false,
+                Activation = WebEncoders.Base64UrlEncode(random)
             };
 
             _context.Users.Add(user);
-            _context.UserActivations.Add(activation);
 
             await _context.SaveChangesAsync();
 
-            return new JsonResult(activation.Id);
+            return new JsonResult(user.Activation);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetUsers() {
             List<UserResult> users = await _context.Users
+                .AsNoTracking()
                 .OrderBy(u => u.Username)
                 .Select(u => new UserResult {
                     Id = u.Id,
@@ -133,17 +135,39 @@ namespace todd.Controllers {
             user.SaltSize = 0;
             user.Active = false;
 
-            PasswordReset current = await _context.PasswordResets.FirstOrDefaultAsync(r => r.User == user);
-            if (current != null) {
-                _context.PasswordResets.Remove(current);
+            byte[] random = new byte[_options.ResetSize / 8];
+            using (var RNG = RandomNumberGenerator.Create()) {
+                RNG.GetBytes(random);
             }
 
-            PasswordReset reset = new PasswordReset { User = user, Generated = DateTime.Now };
-            _context.PasswordResets.Add(reset);
+            user.Reset = WebEncoders.Base64UrlEncode(random);
+            user.ResetGenerated = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
-            return new JsonResult(reset.Id);
+            return new JsonResult(user.Reset);
+        }
+
+        [HttpPost("{id}")]
+        public async Task<IActionResult> DeleteUser(string id) {
+            if (id == User.FindFirstValue(ClaimTypes.Name))
+                return BadRequest("Cannot delete your own account");
+
+            User user;
+            try {
+                user = await _context.Users
+                    .Include(u => u.RefreshTokens)
+                    .Include(u => u.Items)
+                    .Include(u => u.Records)
+                    .FirstAsync(u => u.Id == id);
+            } catch (InvalidOperationException) {
+                return NotFound();
+            }
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
         public class NewUser {

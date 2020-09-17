@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using SkiaSharp;
 
+using todd.Models;
 using todd.Configuration;
 
 namespace todd.Utils {
@@ -16,7 +18,7 @@ namespace todd.Utils {
             _options = options.Value;
         }
 
-        public bool IsImage(IFormFile postedFile) {
+        private bool IsImage(IFormFile postedFile) {
             //-------------------------------------------
             //  Check the image mime types
             //-------------------------------------------
@@ -81,7 +83,7 @@ namespace todd.Utils {
             return true;
         }
 
-        public string SaveAsJpeg(IFormFile file) {
+        private string SaveAsJpeg(IFormFile file) {
             string path = Path.Combine(_options.SaveDir, Path.GetRandomFileName());
 
             using (var fileStream = file.OpenReadStream()) {
@@ -114,10 +116,29 @@ namespace todd.Utils {
 
             return path;
         }
+
+        public List<Image> SaveImages(IFormFileCollection images) {
+            List<Image> newImages = new List<Image>();
+            foreach (IFormFile image in images) {
+                bool isValid = false;
+                try {
+                    isValid = IsImage(image);
+                } catch (ArgumentException) {
+                    continue;
+                }
+
+                if (isValid) {
+                    string filePath = SaveAsJpeg(image);
+
+                    newImages.Add(new Image { Path = filePath });
+                }
+            }
+
+            return newImages;
+        }
     }
 
     public interface IImageUtils {
-        bool IsImage(IFormFile postedFile);
-        string SaveAsJpeg(IFormFile file);
+        List<Image> SaveImages(IFormFileCollection images);
     }
 }

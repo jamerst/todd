@@ -12,18 +12,18 @@ using Microsoft.AspNetCore.Mvc;
 using todd.Data;
 using todd.DTO;
 using todd.Models;
-using todd.Services;
+using todd.Utils;
 
 namespace todd.Controllers {
     [ApiController]
     [Route("api/item/[action]")]
     public class ItemController : ControllerBase {
         private readonly ToddContext _context;
-        private readonly IImageService _imageService;
+        private readonly IImageUtils _imageUtils;
 
-        public ItemController(ToddContext context, IImageService imageService) {
+        public ItemController(ToddContext context, IImageUtils imageUtils) {
             _context = context;
-            _imageService = imageService;
+            _imageUtils = imageUtils;
         }
 
         [HttpPost]
@@ -35,7 +35,7 @@ namespace todd.Controllers {
 
             List<Image> savedImages = new List<Image>();
             if (item.Images != null) {
-                savedImages.AddRange(await _imageService.SaveImages(item.Images));
+                savedImages.AddRange(_imageUtils.SaveImages(item.Images));
             }
 
             Item newItem = new Item {
@@ -103,7 +103,7 @@ namespace todd.Controllers {
 
             List<Image> addedImages = new List<Image>();
             if (images != null) {
-                addedImages.AddRange(await _imageService.SaveImages(images));
+                addedImages.AddRange(_imageUtils.SaveImages(images));
                 item.Images.AddRange(addedImages);
             }
 
@@ -213,7 +213,7 @@ namespace todd.Controllers {
                 LocationId = item.Location.Id,
                 LocationName = item.Location.Name,
                 Quantity = item.Quantity,
-                CreatorName = item.Creator.Username,
+                CreatorName = item.Creator != null ? item.Creator.Username : "(Unknown)",
                 Created = item.Created,
                 ImageIds = item.Images.Select(i => i.Id).ToList(),
                 Records = item.Records.Select(r => new ItemDetailsRecord {

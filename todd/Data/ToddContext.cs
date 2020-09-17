@@ -1,10 +1,5 @@
 ﻿using todd.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace todd.Data {
     public class ToddContext : DbContext {
@@ -24,6 +19,12 @@ namespace todd.Data {
                 .WithOne(r => r.Item)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<User>()
+                .HasMany(u => u.RefreshTokens)
+                .WithOne(r => r.User)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<Image> Images { get; set; }
@@ -33,7 +34,5 @@ namespace todd.Data {
         public DbSet<User> Users { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Setting> Settings { get; set; }
-        public DbSet<UserActivation> UserActivations { get; set; }
-        public DbSet<PasswordReset> PasswordResets { get; set; }
     }
 }
