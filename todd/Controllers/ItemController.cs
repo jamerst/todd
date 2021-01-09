@@ -170,8 +170,6 @@ namespace todd.Controllers {
                 query = query.Where(i => i.LocationId == search.LocationId);
             }
 
-            // List<Item> test = 
-
             List<ItemResult> results = await query
                 .OrderBy(i => i.Name)
                 .Skip((search.pageNum - 1) * 25)
