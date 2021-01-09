@@ -103,8 +103,8 @@ namespace todd.Utils {
                     },
                     out sToken
                 );
-            } catch (SecurityTokenExpiredException e) {
-                throw e;
+            } catch (SecurityTokenExpiredException) {
+                throw new SecurityTokenExpiredException();
             } catch (Exception) {
                 return false;
             }

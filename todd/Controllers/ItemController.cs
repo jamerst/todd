@@ -170,6 +170,8 @@ namespace todd.Controllers {
                 query = query.Where(i => i.LocationId == search.LocationId);
             }
 
+            // List<Item> test = 
+
             List<ItemResult> results = await query
                 .OrderBy(i => i.Name)
                 .Skip((search.pageNum - 1) * 25)
@@ -180,7 +182,7 @@ namespace todd.Controllers {
                     Type = i.Type,
                     Description = i.Description,
                     LocationName = i.Location.Name,
-                    ImageId = i.Images.Count > 0 ? i.Images[0].Id : ""
+                    ImageId = i.Images.Count > 0 ? i.Images.First().Id : ""
                 })
                 .ToListAsync();
 

@@ -16,7 +16,7 @@ services:
       TODD_JWT_KEY: OxBCcXjmBdXm37e9E3iIABuTdv1W9rUBID96ZZ3A0H3C6Iplf5
       TODD_JWT_REFRESH_KEY: UNWwVs7MqBjDARYpOUXm8Km4Uvmbl8IKiir1QZ2Xy1LOIBf8Qm
   db:
-    image: "postgres:12.1"
+    image: "postgres:13.1"
     environment:
         POSTGRES_DB: todd_db
         POSTGRES_USER: todd

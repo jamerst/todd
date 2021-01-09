@@ -15,7 +15,7 @@ namespace todd.Models {
         public string CreatorId { get; set; }
         public User Creator { get; set; }
         public DateTime Created { get; set; }
-        public List<Image> Images { get; set; }
+        public virtual List<Image> Images { get; set; }
         public List<Record> Records { get; set; }
     }
 }
